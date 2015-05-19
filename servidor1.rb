@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby1.9.1
 require 'socket'               # Get sockets from stdlib
 port = ARGV[0]
 
