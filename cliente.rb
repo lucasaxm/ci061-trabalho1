@@ -1,7 +1,10 @@
 #!/usr/bin/env ruby1.9.1
+# encoding: utf-8
 
 require 'socket'
-
+hostnames = []
+portas = []
+socket = []
 3.times do |i|
 	puts "Digite o nome do servidor #{i}: "
 	hostnames[i]=gets.chomp	# array com nome dos servidores
@@ -25,28 +28,27 @@ while opcao!=2
 	 		socket[host].send("EDIT",0)
 	 		resposta = socket[host].recv(100)
 	 		if resposta == "OK"
-	 		{
-	 			okArray<<host
+	 			okArray << host
 	 			puts "#{host} respondeu OK."
-	 		}
 	 		elsif resposta=="NOK" 
-	 		{
 	 			puts "#{host} esta ocupado."
 	 			okArray.each { |okHost|
 	 				socket[host].send("ABORT",0)
 	 				puts "ABORT enviado para #{okHost}."
 	 			}
 	 			break
-	 		}
+	 		end
 	 	end
 	 	if okArray.size == hostnames.size
 	 		# enviar COMMIT com a alteração pra todo mundo.
+	 		puts "Digite o novo valor do dado:"
+	 		dado = gets.chomp
 	 		hostnames.each do |host|
 	 			socket[host].send("COMMIT",0)
-	 			
+ 				socket[host].send(dado, 0)
+ 				puts "String '#{}' enviada para o host #{host} com sucesso!"
 	 		end
 	 	end
-	 	
 	end
 end
 
