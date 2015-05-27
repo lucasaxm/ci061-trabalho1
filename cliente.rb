@@ -41,6 +41,10 @@ while opcao!=2
 	 	end
 	 	if okArray.size == hostnames.size
 	 		# enviar COMMIT com a alteração pra todo mundo.
+	 		hostnames.each do |host|
+	 			socket[host].send("COMMIT",0)
+	 			
+	 		end
 	 	end
 	 	
 	end
