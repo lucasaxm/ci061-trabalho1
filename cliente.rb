@@ -3,7 +3,7 @@
 require 'socket'
 require "awesome_print"
 
-numServers=2
+numServers=3
 hostnames = []
 portas = []
 socket = []
@@ -33,9 +33,11 @@ while opcao!=2
 
 	if opcao==1
 		okArray=[]
+
 		numServers.times do |i|	# abre sockets
 			socket[i] = TCPSocket.open(hostnames[i], portas[i].to_i)	# hash com chave="nome do host" e valor=TCPSocket
 		end
+
 	 	numServers.times do |i|
 	 		puts "Enviando requisição para #{hostnames[i]}:#{portas[i]}..."
 	 		socket[i].send("EDIT",0)
@@ -46,18 +48,19 @@ while opcao!=2
 	 			puts "#{hostnames[i]}:#{portas[i]} respondeu OK."
 	 		elsif resposta=="NOK" 
 	 			puts "#{hostnames[i]}:#{portas[i]} está ocupado."
-	 			okArray.each do |okHost|
-	 				puts "Enviando ABORT para #{okHost}"
-	 				socket[i].send("ABORT",0)
-	 				puts "ABORT enviado para #{okHost}."
-	 			end
-	 			break
 	 		else
 	 			puts "Resposta recebida: '#{resposta}'."
 	 			puts "Resposta inválida."
 	 		end
 	 	end
-	 	if okArray.size == hostnames.size
+
+ 		if okArray.size<numServers
+ 			okArray.each do |okHost|
+ 				puts "Enviando ABORT para #{okHost}"
+ 				socket[i].send("ABORT",0)
+ 				puts "ABORT enviado para #{okHost}."
+ 			end
+ 		else
 	 		# enviar COMMIT com a alteração pra todo mundo.
 	 		puts "Digite o novo valor do dado:"
 	 		dado = gets.chomp
@@ -74,6 +77,7 @@ while opcao!=2
 	 			
 	 		end
 	 	end
+	 	
 		socket.each do |s|	# fecha sockets
 			s.close
 		end
