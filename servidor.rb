@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby1.9.1
+# encoding: utf-8
+
 require 'socket'               # Get sockets from stdlib
 require 'thread'
 port = ARGV[0]
@@ -25,8 +27,8 @@ loop {
 			elsif requisicao == "ABORT"
 				puts "Operacao Cancelada"
 			end						  			
-		  client.send ("Fechando Conexão. Até mais!",0)
-		  client.close          
+		  client.send("Fechando Conexão. Até mais!",0)
+		  client.close
 		  end
 	end
 }  

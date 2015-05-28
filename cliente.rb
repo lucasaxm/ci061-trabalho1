@@ -4,16 +4,24 @@
 require 'socket'
 hostnames = []
 portas = []
-socket = []
+socket = {}
 3.times do |i|
 	puts "Digite o nome do servidor #{i}: "
 	hostnames[i]=gets.chomp	# array com nome dos servidores
 	puts "Digite a porta do servidor #{i}: "
 	portas[i]=gets.chomp	# array com porta dos servidores
-	socket[hostnames[i]] = TCPSocket.open(hostnames[i], portas[i])	# hash com chave="nome do host" e valor=TCPSocket
+	socket[hostnames[i]] = TCPSocket.open(hostnames[i], portas[i].to_i)	# hash com chave="nome do host" e valor=TCPSocket
 end
 opcao = 0
 while opcao!=2
+	print "Servidores: "
+	3.times do |i|
+		if i!=2
+			print "#{hostnames[i]}:#{portas[i]}, "
+		else
+			puts "#{hostnames[i]}:#{portas[i]}."
+		end
+	end
 	print "
 	Escolha uma opção
 	1 - Editar arquivo no servidor.
@@ -23,16 +31,18 @@ while opcao!=2
 
 	if opcao==1
 		okArray=[]
-	 	hostnames.each do |host|
-	 		puts "Enviando requisição para #{host}"
+	 	hostnames.each_with_index do |host, i|
+	 		puts "Enviando requisição para #{host}:#{portas[i].to_i}..."
 	 		socket[host].send("EDIT",0)
+	 		puts "Requisição EDIT enviada. Aguardando resposta..."
 	 		resposta = socket[host].recv(100)
 	 		if resposta == "OK"
 	 			okArray << host
-	 			puts "#{host} respondeu OK."
+	 			puts "#{host}:#{portas[i].to_i} respondeu OK."
 	 		elsif resposta=="NOK" 
-	 			puts "#{host} esta ocupado."
+	 			puts "#{host}:#{portas[i].to_i} esta ocupado."
 	 			okArray.each { |okHost|
+	 				puts "Enviando ABORT para #{okHost}"
 	 				socket[host].send("ABORT",0)
 	 				puts "ABORT enviado para #{okHost}."
 	 			}
@@ -43,10 +53,10 @@ while opcao!=2
 	 		# enviar COMMIT com a alteração pra todo mundo.
 	 		puts "Digite o novo valor do dado:"
 	 		dado = gets.chomp
-	 		hostnames.each do |host|
+	 		hostnames.each_with_index do |host, i|
 	 			socket[host].send("COMMIT",0)
  				socket[host].send(dado, 0)
- 				puts "String '#{}' enviada para o host #{host} com sucesso!"
+ 				puts "String '#{}' enviada para o host #{host}:#{portas[i].to_i} com sucesso!"
 	 		end
 	 	end
 	end
