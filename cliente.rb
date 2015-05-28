@@ -47,6 +47,8 @@ while opcao!=2
 	 				puts "ABORT enviado para #{okHost}."
 	 			}
 	 			break
+	 		else
+	 			puts "Resposta inválida."
 	 		end
 	 	end
 	 	if okArray.size == hostnames.size
@@ -56,7 +58,7 @@ while opcao!=2
 	 		hostnames.each_with_index do |host, i|
 	 			socket[host].send("COMMIT",0)
  				socket[host].send(dado, 0)
- 				puts "String '#{}' enviada para o host #{host}:#{portas[i].to_i} com sucesso!"
+ 				puts "String '#{dado}' enviada para o host #{host}:#{portas[i].to_i} com sucesso!"
 	 		end
 	 	end
 	end
