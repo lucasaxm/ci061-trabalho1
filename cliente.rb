@@ -2,10 +2,11 @@
 # encoding: utf-8
 
 require 'socket'
+numServers=3
 hostnames = []
 portas = []
 socket = {}
-3.times do |i|
+numServers.times do |i|
 	puts "Digite o nome do servidor #{i}: "
 	hostnames[i]=gets.chomp	# array com nome dos servidores
 	puts "Digite a porta do servidor #{i}: "
@@ -15,7 +16,7 @@ end
 opcao = 0
 while opcao!=2
 	print "Servidores: "
-	3.times do |i|
+	numServers.times do |i|
 		if i!=2
 			print "#{hostnames[i]}:#{portas[i]}, "
 		else
