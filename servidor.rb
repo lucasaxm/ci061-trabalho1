@@ -31,10 +31,13 @@ loop {
 				if requisicao == "COMMIT"
 					# mutex.synchronize do
 					client.send("ACK",0)
-						ap "Thread #{Thread.current.object_id}: Requisição recebida: '#{requisicao}'."
-						dadoOld = dado
-						dado = client.recv(100)
-						ap "Thread #{Thread.current.object_id}: Dado alterado de '#{dadoOld}' para '#{dado}'."
+					ap "Thread #{Thread.current.object_id}: Requisição recebida: '#{requisicao}'."
+					dadoOld = dado
+					dado = client.recv(100)
+					# puts "Thread #{Thread.current.object_id}: sleeping 10sec."
+					# sleep 10
+					# puts "Thread #{Thread.current.object_id}: wake!"
+					ap "Thread #{Thread.current.object_id}: Dado alterado de '#{dadoOld}' para '#{dado}'."
 					# end	
 				elsif requisicao == "ABORT"
 					ap "Thread #{Thread.current.object_id}: Requisição recebida '#{requisicao}'."
