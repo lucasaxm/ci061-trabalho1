@@ -44,7 +44,7 @@ while opcao!=2
 	 		puts "Requisição EDIT enviada. Aguardando resposta..."
 	 		resposta = socket[i].recv(100)
 	 		if resposta == "OK"
-	 			okArray << hostnames[i]
+	 			okArray << i
 	 			puts "#{hostnames[i]}:#{portas[i]} respondeu OK."
 	 		elsif resposta=="NOK" 
 	 			puts "#{hostnames[i]}:#{portas[i]} está ocupado."
@@ -55,10 +55,10 @@ while opcao!=2
 	 	end
 
  		if okArray.size<numServers
- 			okArray.each do |okHost|
- 				puts "Enviando ABORT para #{okHost}"
+ 			okArray.each do |i|
+ 				puts "Enviando ABORT para #{hostnames[i]}:#{portas[i]}..."
  				socket[i].send("ABORT",0)
- 				puts "ABORT enviado para #{okHost}."
+ 				puts "ABORT enviado para #{hostnames[i]}:#{portas[i]}...."
  			end
  		else
 	 		# enviar COMMIT com a alteração pra todo mundo.
