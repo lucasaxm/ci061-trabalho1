@@ -11,8 +11,8 @@ require "vigenere" # vigenere.rb
 include VigenereCipher
 
 port = ARGV[0]
-# dado = "My precious Taz and Toph"
 filePath = "teste"
+tamMaxMsg = 100
 
 #fazer funcao\/
 key = File.new("keyword.txt", "r+")
@@ -45,10 +45,12 @@ def log(msg, val)
 	end
 end
 
+# Retorna um identificador para a thread atual.
 def threadId
 	return "Thread #{Thread.current.object_id}"
 end
 
+# Salva keyword e o arquivo criptografado no disco.
 def shut_down
 	log("\n",1)
 	log("Saindo do Servidor.",1)
@@ -58,7 +60,8 @@ def shut_down
 	key.puts $keyword
 	key.close
 	$file.close
-end 
+	log("Bye bye!",2)
+end
 
 Signal.trap("INT") { 
   shut_down
@@ -83,21 +86,21 @@ log(" -----------------------------------------------------------------------",1
 log("Servidor: #{port}",1)
 
 mutex = Mutex.new
-contClient = 0
+contClient = 1 	# id dada para cliente que está sendo atendido
 server = TCPServer.open(port)
 loop {
-#servidor com mais de um cliente
+	# abre uma thread para atender cada cliente recebido
 	Thread.start(server.accept) do |client|
-		clientId = contClient
+		clientId = contClient # atribui um identificador ao cliente
 		log("", 0)
 		log("#{threadId}: Conexão estabelecida com o cliente #{clientId}",0)
 		log("#{threadId}: Aguardando requisicao...",0)
-		requisicao = client.recv(100)
+		requisicao = client.recv(tamMaxMsg) 	
 		log("#{threadId}: Requisição recebida: '#{requisicao}'.",0)
 		case requisicao
 		when "SETKEY"
 			if !mutex.try_lock
-				log("#{threadId}: Outro cliente está alterando o dado. Enviando NOK para cliente #{clientId}...",0)
+				log("#{threadId}: Outro cliente está sendo atendido no momento. Enviando NOK para cliente #{clientId}...",0)
 				client.send("NOK",0)
 				log("#{threadId}: NOK enviado para cliente #{clientId}.",0)
 			else
@@ -105,12 +108,12 @@ loop {
 				client.send("OK",0)
 				log("#{threadId}: OK enviado para cliente #{clientId}.",0)
 				log("#{threadId}: Aguardando nova requisição do cliente #{clientId}...",0)
-				requisicao = client.recv(100)
+				requisicao = client.recv(tamMaxMsg)
 				if requisicao == "COMMIT"
 					client.send("ACK",0)
 					log("#{threadId}: Requisição recebida: '#{requisicao}'.",0)
 					oldKey = $keyword
-					$keyword = client.recv(100)
+					$keyword = client.recv(tamMaxMsg)
 					log("#{threadId}: Criptografando arquivo...",0)
 					File.open(filePath, "r+") do |f|
 						log("Arquivo cifrado com a antiga palavra chave #{oldKey}:",1)
@@ -158,13 +161,13 @@ loop {
 				client.send("OK",0)
 				log("#{threadId}: OK enviado para cliente #{clientId}.",0)
 				log("#{threadId}: Aguardando nova requisição do cliente #{clientId}...",0)
-				requisicao = client.recv(100)
+				requisicao = client.recv(tamMaxMsg)
 				if requisicao == "COMMIT"
 					log("#{threadId}: Requisição recebida: '#{requisicao}'.",0)
 					File.open(filePath,"r") do |f|
 						log("#{threadId}: Arquivo de #{f.size} bytes aberto para leitura.",0)
 						client.send(f.size.to_s,0)
-						confirmacao = client.recv(100)
+						confirmacao = client.recv(tamMaxMsg)
 						if confirmacao=="ACK"
 							client.send(f.read, 0)
 							log("#{threadId}: Arquivo enviado para o cliente #{clientId} com sucesso!",0)
@@ -193,7 +196,7 @@ loop {
 				client.send("OK",0)
 				log("#{threadId}: OK enviado para cliente #{clientId}.",0)
 				log("#{threadId}: Aguardando nova requisição do cliente #{clientId}...",0)
-				requisicao = client.recv(100)
+				requisicao = client.recv(tamMaxMsg)
 				log("#{threadId}: Requisição recebida: '#{requisicao}'.",0)
 				if requisicao == "COMMIT"
 					client.send($keyword,0)
