@@ -58,7 +58,19 @@ def shut_down
 	key.puts $keyword
 	key.close
 	$file.close
-end 
+end
+
+def sendNok(client)
+	log("#{threadId}: Outro cliente está alterando o dado. Enviando NOK para cliente #{clientId}...",0)
+	client.send("NOK",0)
+	log("#{threadId}: NOK enviado para cliente #{clientId}.",0)
+end
+
+def sendOk(client)
+	log("#{threadId}: Enviando OK para cliente #{clientId}...",0)
+	client.send("OK",0)
+	log("#{threadId}: OK enviado para cliente #{clientId}.",0)
+end
 
 Signal.trap("INT") { 
   shut_down
@@ -101,9 +113,7 @@ loop {
 				client.send("NOK",0)
 				log("#{threadId}: NOK enviado para cliente #{clientId}.",0)
 			else
-				log("#{threadId}: Enviando OK para cliente #{clientId}...",0)
-				client.send("OK",0)
-				log("#{threadId}: OK enviado para cliente #{clientId}.",0)
+				sendOk(client)
 				log("#{threadId}: Aguardando nova requisição do cliente #{clientId}...",0)
 				requisicao = client.recv(100)
 				if requisicao == "COMMIT"
@@ -150,13 +160,9 @@ loop {
 			end
 		when "GETFILE"
 			if !mutex.try_lock
-				log("#{threadId}: Outro cliente está alterando o dado. Enviando NOK para cliente #{clientId}...",0)
-				client.send("NOK",0)
-				log("#{threadId}: NOK enviado para cliente #{clientId}.",0)
+				sendNok(client)
 			else
-				log("#{threadId}: Enviando OK para cliente #{clientId}...",0)
-				client.send("OK",0)
-				log("#{threadId}: OK enviado para cliente #{clientId}.",0)
+				sendOk(client)
 				log("#{threadId}: Aguardando nova requisição do cliente #{clientId}...",0)
 				requisicao = client.recv(100)
 				if requisicao == "COMMIT"
@@ -187,7 +193,7 @@ loop {
 			if !mutex.try_lock
 				log("#{threadId}: Outro cliente está alterando o dado. Enviando NOK para cliente #{clientId}...",0)
 				client.send("NOK",0)
-				log("#{threadId}: NOK enviado para cliente #{clientId}.",0)
+				log("#{threadId}: NOK enviado para cliente #{clientId}.",0)			
 			else
 				log("#{threadId}: Enviando OK para cliente #{clientId}...",0)
 				client.send("OK",0)
