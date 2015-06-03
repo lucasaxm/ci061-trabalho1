@@ -24,25 +24,27 @@ $file = File.new(filename, "w+")
 #======================#
 #        metodos       #
 #======================#
-
-
-def log(msg, val)
-	case val
-		when 0
-			$file.puts msg
-			puts msg
-		when 1
-			$file.puts msg
-		when 2
-			puts msg
-		when 3
-			$file.print msg
-			print msg
-		when 4
-			print msg
-		else			
-			puts "Erro no logger"		
+def log(msg, stdout) # editando aqui
+	$file.print msg
+	if stdout
+		print msg
 	end
+	# case val
+	# 	when 0
+	# 		$file.puts msg
+	# 		puts msg
+	# 	when 1
+	# 		$file.puts msg
+	# 	when 2
+	# 		puts msg
+	# 	when 3
+	# 		$file.print msg
+	# 		print msg
+	# 	when 4
+	# 		print msg
+	# 	else			
+	# 		puts "Erro no logger"		
+	# end
 end
 
 # Retorna um identificador para a thread atual.
@@ -92,29 +94,29 @@ loop {
 	# abre uma thread para atender cada cliente recebido
 	Thread.start(server.accept) do |client|
 		clientId = contClient # atribui um identificador ao cliente
-		log("", 0)
-		log("#{threadId}: Conexão estabelecida com o cliente #{clientId}",0)
-		log("#{threadId}: Aguardando requisicao...",0)
+		log("\n", 1)
+		log("#{threadId}: Conexão estabelecida com o cliente #{clientId}\n",1)
+		log("#{threadId}: Aguardando requisicao...\n",1)
 		requisicao = client.recv(tamMaxMsg) 	
-		log("#{threadId}: Requisição recebida: '#{requisicao}'.",0)
+		log("#{threadId}: Requisição recebida: '#{requisicao}'.\n",1)
 		case requisicao
 		when "SETKEY"
 			if !mutex.try_lock
-				log("#{threadId}: Outro cliente está sendo atendido no momento. Enviando NOK para cliente #{clientId}...",0)
+				log("#{threadId}: Outro cliente está sendo atendido no momento. Enviando NOK para cliente #{clientId}...\n",1)
 				client.send("NOK",0)
-				log("#{threadId}: NOK enviado para cliente #{clientId}.",0)
+				log("#{threadId}: NOK enviado para cliente #{clientId}.\n",1)
 			else
-				log("#{threadId}: Enviando OK para cliente #{clientId}...",0)
+				log("#{threadId}: Enviando OK para cliente #{clientId}...\n",1)
 				client.send("OK",0)
-				log("#{threadId}: OK enviado para cliente #{clientId}.",0)
-				log("#{threadId}: Aguardando nova requisição do cliente #{clientId}...",0)
+				log("#{threadId}: OK enviado para cliente #{clientId}.\n",1)
+				log("#{threadId}: Aguardando nova requisição do cliente #{clientId}...\n",1)
 				requisicao = client.recv(tamMaxMsg)
 				if requisicao == "COMMIT"
 					client.send("ACK",0)
-					log("#{threadId}: Requisição recebida: '#{requisicao}'.",0)
+					log("#{threadId}: Requisição recebida: '#{requisicao}'.\n",1)
 					oldKey = $keyword
 					$keyword = client.recv(tamMaxMsg)
-					log("#{threadId}: Criptografando arquivo...",0)
+					log("#{threadId}: Criptografando arquivo...\n",1)
 					File.open(filePath, "r+") do |f|
 						log("Arquivo cifrado com a antiga palavra chave #{oldKey}:",1)
 						log("#{f.read}",1)
@@ -131,89 +133,89 @@ loop {
 						f.write VigenereCipher.encrypt(textoClaro,$keyword)
 						f.rewind 
 						log("#{f.read}",1)
-						log("",0)
+						log("\n",1)
 						textoClaro = nil
 						
 					end
 					
-					log("#{threadId}: Chave alterada de '#{oldKey}' para '#{$keyword}'.",0)
-					# log("#{threadId}: sleeping 10sec.",0)
+					log("#{threadId}: Chave alterada de '#{oldKey}' para '#{$keyword}'.\n",1)
+					# log("#{threadId}: sleeping 10sec.\n",1)
 					# sleep 10
-					# log("#{threadId}: wake!",0)
+					# log("#{threadId}: wake!\n",1)
 					# end	
 				elsif requisicao == "ABORT"
-					log("#{threadId}: Requisição recebida '#{requisicao}'.",0)
-					log("#{threadId}: Operacao Cancelada",0)
+					log("#{threadId}: Requisição recebida '#{requisicao}'.\n",1)
+					log("#{threadId}: Operacao Cancelada\n",1)
 				else 
-					log("#{threadId}: Requisição recebida: '#{requisicao}'.",0)
-					log("#{threadId}: Resposta inválida",0)
-					log("#{threadId}: Resposta esperada: COMMIT ou ABORT.",0)
+					log("#{threadId}: Requisição recebida: '#{requisicao}'.\n",1)
+					log("#{threadId}: Resposta inválida\n",1)
+					log("#{threadId}: Resposta esperada: COMMIT ou ABORT.\n",1)
 				end
 				mutex.unlock
 			end
 		when "GETFILE"
 			if !mutex.try_lock
-				log("#{threadId}: Outro cliente está alterando o dado. Enviando NOK para cliente #{clientId}...",0)
+				log("#{threadId}: Outro cliente está alterando o dado. Enviando NOK para cliente #{clientId}...\n",1)
 				client.send("NOK",0)
-				log("#{threadId}: NOK enviado para cliente #{clientId}.",0)
+				log("#{threadId}: NOK enviado para cliente #{clientId}.\n",1)
 			else
-				log("#{threadId}: Enviando OK para cliente #{clientId}...",0)
+				log("#{threadId}: Enviando OK para cliente #{clientId}...\n",1)
 				client.send("OK",0)
-				log("#{threadId}: OK enviado para cliente #{clientId}.",0)
-				log("#{threadId}: Aguardando nova requisição do cliente #{clientId}...",0)
+				log("#{threadId}: OK enviado para cliente #{clientId}.\n",1)
+				log("#{threadId}: Aguardando nova requisição do cliente #{clientId}...\n",1)
 				requisicao = client.recv(tamMaxMsg)
 				if requisicao == "COMMIT"
-					log("#{threadId}: Requisição recebida: '#{requisicao}'.",0)
+					log("#{threadId}: Requisição recebida: '#{requisicao}'.\n",1)
 					File.open(filePath,"r") do |f|
-						log("#{threadId}: Arquivo de #{f.size} bytes aberto para leitura.",0)
-						client.send(f.size.to_s,0)
+						log("#{threadId}: Arquivo de #{f.size} bytes aberto para leitura.\n",1)
+						client.send(f.size.to_\ns,0)
 						confirmacao = client.recv(tamMaxMsg)
 						if confirmacao=="ACK"
-							client.send(f.read, 0)
-							log("#{threadId}: Arquivo enviado para o cliente #{clientId} com sucesso!",0)
+							client.send(f.read,0)
+							log("#{threadId}: Arquivo enviado para o cliente #{clientId} com sucesso!\n",1)
 						else
-							log("#{threadId}: Falha ao receber confirmação do cliente #{clientId}.",0)
-							log("#{threadId}: Mensagem do servidor: '#{confirmacao}'.",0)
+							log("#{threadId}: Falha ao receber confirmação do cliente #{clientId}.\n",1)
+							log("#{threadId}: Mensagem do servidor: '#{confirmacao}'.\n",1)
 						end
 					end
 				elsif requisicao == "ABORT"
-					log("#{threadId}: Requisição recebida '#{requisicao}'.",0)
-					log("#{threadId}: Operacao Cancelada",0)
+					log("#{threadId}: Requisição recebida '#{requisicao}'.\n",1)
+					log("#{threadId}: Operacao Cancelada\n",1)
 				else 
-					log("#{threadId}: Requisição recebida: '#{requisicao}'.",0)
-					log("#{threadId}: Resposta inválida",0)
-					log("#{threadId}: Resposta esperada: COMMIT ou ABORT.",0)
+					log("#{threadId}: Requisição recebida: '#{requisicao}'.\n",1)
+					log("#{threadId}: Resposta inválida\n",1)
+					log("#{threadId}: Resposta esperada: COMMIT ou ABORT.\n",1)
 				end
 				mutex.unlock
 			end
 		when "GETKEY"
 			if !mutex.try_lock
-				log("#{threadId}: Outro cliente está alterando o dado. Enviando NOK para cliente #{clientId}...",0)
+				log("#{threadId}: Outro cliente está alterando o dado. Enviando NOK para cliente #{clientId}...\n",1)
 				client.send("NOK",0)
-				log("#{threadId}: NOK enviado para cliente #{clientId}.",0)
+				log("#{threadId}: NOK enviado para cliente #{clientId}.\n",1)
 			else
-				log("#{threadId}: Enviando OK para cliente #{clientId}...",0)
+				log("#{threadId}: Enviando OK para cliente #{clientId}...\n",1)
 				client.send("OK",0)
-				log("#{threadId}: OK enviado para cliente #{clientId}.",0)
-				log("#{threadId}: Aguardando nova requisição do cliente #{clientId}...",0)
+				log("#{threadId}: OK enviado para cliente #{clientId}.\n",1)
+				log("#{threadId}: Aguardando nova requisição do cliente #{clientId}...\n",1)
 				requisicao = client.recv(tamMaxMsg)
-				log("#{threadId}: Requisição recebida: '#{requisicao}'.",0)
+				log("#{threadId}: Requisição recebida: '#{requisicao}'.\n",1)
 				if requisicao == "COMMIT"
 					client.send($keyword,0)
-					log("#{threadId}: Palavra-chave '#{$keyword}' enviada para o cliente #{clientId} com sucesso!",0)
+					log("#{threadId}: Palavra-chave '#{$keyword}' enviada para o cliente #{clientId} com sucesso!\n",1)
 				elsif requisicao == "ABORT"
-					log("#{threadId}: Operacao Cancelada",0)
+					log("#{threadId}: Operacao Cancelada\n",1)
 				else
-					log("#{threadId}: Resposta inválida",0)
-					log("#{threadId}: Resposta esperada: COMMIT ou ABORT.",0)
+					log("#{threadId}: Resposta inválida\n",1)
+					log("#{threadId}: Resposta esperada: COMMIT ou ABORT.\n",1)
 				end
 				mutex.unlock
 			end
  		else
- 			log("#{threadId}: Resposta inválida.",0)
-			log("#{threadId}: (Respostas esperadas: SETKEY, GETKEY, GETFILE.)",0)
+ 			log("#{threadId}: Resposta inválida.\n",1)
+			log("#{threadId}: (Respostas esperadas: SETKEY, GETKEY, GETFILE.)\n",1)
 		end
- 		log("#{threadId}: Fechando Conexão com o cliente #{clientId}.",0 )
+ 		log("#{threadId}: Fechando Conexão com o cliente #{clientId}.\n",1)
 		
 		client.close
 	end

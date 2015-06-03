@@ -34,7 +34,7 @@ def cabecalho
 	log("Cliente \n",1)
 end
 
-numServers=2
+numServers=1
 hostnames = []
 portas = []
 socket = []
@@ -42,9 +42,9 @@ filename = "cliente.txt"
 $file = File.new(filename, "w+")
 cabecalho
 numServers.times do |i|
-	log("Digite o nome do servidor #{i}: ",2)
+	log("Digite o nome do servidor #{i+1}: ",2)
 	hostnames[i]=gets.chomp	# array com nome dos servidores
-	log("Digite a porta do servidor #{i}: ",2)
+	log("Digite a porta do servidor #{i+1}: ",2)
 	portas[i]=gets.chomp	# array com porta dos servidores
 	log("Inserindo o servidor #{hostnames[i]} com #{portas[i]} para poder fazer conexão.",1)
 end
@@ -69,7 +69,7 @@ while opcao!=4
 
 	opcao = gets.chomp.to_i
 	log("opcao digitada #{opcao}",1)
-
+	system("clear")
 	case opcao
 		when 1 # SETKEY
 			okArray=[]
