@@ -50,9 +50,9 @@ while opcao!=4
 			end
 	
 			numServers.times do |i|
-				$log.report("",1)
+				$log.report("\n",1)
 				$log.report("Enviando requisição para #{hostnames[i]}:#{portas[i]}...\n",1)
-				socket[i].send("SETKEY",1)
+				socket[i].send("SETKEY",0)
 				$log.report("Requisição SETKEY enviada. Aguardando resposta...\n",1)
 				resposta = socket[i].recv(100)
 				if resposta == "OK"
@@ -79,7 +79,7 @@ while opcao!=4
 				keyword = gets.chomp
 				$log.report("A palavra chave digita é: #{keyword}\n",1)
 				numServers.times do |i|
-	 				$log.report("enviando um COMMIT para o #{socket[i]}",1)
+	 				$log.report("enviando um COMMIT para o #{socket[i]}\n",1)
 					socket[i].send("COMMIT\n",1)
 					confirmacao = socket[i].recv(100)
 					$log.report("recebendo a confirmação #{confirmacao} do #{socket[i]}\n",0)
@@ -146,8 +146,8 @@ while opcao!=4
 					end
 				else
 					$log.report("Palavras-chave recebidas são iguais.\n",1)
-					$log.report("Palavra-chave:\n ",0)
-					$log.report(keyArray.first,0)
+					$log.report("Palavra-chave:\n ",1)
+					$log.report(keyArray.first,1)
 					$log.report("\n",1)
 				end
 			end
@@ -221,7 +221,7 @@ while opcao!=4
 			$log.report("Opcao inválida\n",1)
 	end
 
-	$log.report("\n",)
+	$log.report("\n",1)
 end
 $log.report("Saindo do Cliente.\n",0)
 $log.close

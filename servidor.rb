@@ -30,14 +30,14 @@ end
 # Salva keyword e o arquivo criptografado no disco.
 def shut_down
 	$log.report("\n",1)
-	$log.report("Saindo do Servidor.",1)
+	$log.report("Saindo do Servidor.\n",1)
 	#salvando chave no arquivo
-	$log.report("Salvando palavra chave #{$keyword} no arquivo keyword.txt",1)
-	key = File.new("keyword.txt", "w")
+	$log.report("Salvando palavra chave #{$keyword} no arquivo keyword.txt\n",1)
+	key = File.new("keyword.txt", "w+")
 	key.puts $keyword
 	key.close
+	$log.report("Bye bye!",0)
 	$log.close
-	$log.report("Bye bye!",2)
 end
 
 Signal.trap("INT") { 
@@ -103,7 +103,7 @@ loop {
 						$log.report("Novo arquivo cifrado com a chave #{$keyword}:\n",0)
 						f.write VigenereCipher.encrypt(textoClaro,$keyword)
 						f.rewind 
-						$log.report("#{f.read}\n",1)
+						$log.report("#{f.read}\n",0)
 						$log.report("\n",1)
 						textoClaro = nil
 						
