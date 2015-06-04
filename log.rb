@@ -9,6 +9,16 @@ class Log
 		self.report(" -----------------------------------------------------------------------\n",0)
 	end
 
+	def printMenu
+		self.report("
+		Escolha uma opção
+		1 - Trocar palavra-chave.
+		2 - Ver palavra-chave.
+		3 - Ver arquivo.
+		4 - Sair.
+		? ", 1)		
+	end
+
 	def report(msg, stdout) # editando aqui
 		# puts "msg=#{msg}"
 		# puts "stdout=#{stdout}"
