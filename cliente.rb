@@ -20,6 +20,17 @@ def getServidores(numServers)
 	end
 end	
 
+def printServersConect(numServers)
+	$log.report("Este cliente esta conectado aos seguintes servidores: \n",1)
+	numServers.times do |i|
+		if i<numServers-1
+			$log.report("#{$hostnames[i]}:#{$portas[i]}, ",1)
+		else
+			$log.report("#{$hostnames[i]}:#{$portas[i]}.\n",1)
+		end
+	end	
+end
+
 def openSocket(numServers)
 	numServers.times do |i|	# abre sockets
 		$socket[i] = TCPSocket.open($hostnames[i], $portas[i].to_i)	# hash com chave="nome do host" e valor=TCPSocket
@@ -194,14 +205,7 @@ opcao = 0
 getServidores(numServers)
 system "clear"
 while opcao!=4
-	$log.report("Este cliente esta conectado aos seguintes servidores: \n",1)
-	numServers.times do |i|
-		if i<numServers-1
-			$log.report("#{$hostnames[i]}:#{$portas[i]}, ",1)
-		else
-			$log.report("#{$hostnames[i]}:#{$portas[i]}.\n",1)
-		end
-	end
+	printServersConect(numServers)
 
 	$log.printMenu
 
