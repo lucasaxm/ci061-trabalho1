@@ -1,15 +1,34 @@
 #!/usr/bin/env ruby1.9.1
 # encoding: utf-8
+
+#-----------------------------------------------------------#
+# 						cliente.rb
+#    Script em ruby que executa o cliente no protocolo 2PC
+#    Objetivo: Fazer a comunicação entre servidor e cliente
+#              e salvar os dados novos que o cliente passa  
+#    		   para esse servidor
+#    
+#    Autores: Evelim Carla Ribeiro
+# 	 		  Lucas Affonso Xavier de Morais
+#    Disciplina: Redes de computadores II
+#    Bacharelado Ciência da Computação
+#    Departamento de Informática
+#    Universidade Federal do Paraná
+#    Ano: 2015
+#-----------------------------------------------------------#  
+
 $LOAD_PATH << '.'
 require 'socket'
 require "awesome_print"
 require "log"
 
-numServers=1
+numServers=3
 $hostnames = []
 $portas = []
 $socket = []
 # METODOS
+
+# lê da entrada padrão o nome dos servidores e portas que ira se conectar 
 def getServidores(numServers)
 	numServers.times do |i|
 		puts "Digite o nome do servidor #{i+1}: "
@@ -20,6 +39,7 @@ def getServidores(numServers)
 	end
 end	
 
+# imprime o nome e a porta dos servidores que o cliente está conectado
 def printServersConect(numServers)
 	$log.report("Este cliente esta conectado aos seguintes servidores: \n",1)
 	numServers.times do |i|
@@ -31,22 +51,26 @@ def printServersConect(numServers)
 	end	
 end
 
+# abre a conexão com os servidores
 def openSocket(numServers)
 	numServers.times do |i|	# abre sockets
 		$socket[i] = TCPSocket.open($hostnames[i], $portas[i].to_i)	# hash com chave="nome do host" e valor=TCPSocket
 	end
 end
 
+# fecha a conexão com os servidores
 def closeSocket
 	$socket.each do |s|	# fecha sockets
 		s.close
 	end	
 end
 
+# recebe de cada servidor uma resposta de OK se o não estiver ocupado
+# caso contrario recebe NOK
 def requestOkOrNok(resposta, i)
 	okArray = []
 	if resposta == "OK"
-		okArray << i
+		okArray[i] = i
 		$log.report("#{$hostnames[i]}:#{$portas[i]} respondeu OK.\n",1)
 	elsif resposta=="NOK"
 		$log.report("#{$hostnames[i]}:#{$portas[i]} está ocupado.\n",1)
@@ -54,9 +78,10 @@ def requestOkOrNok(resposta, i)
 		$log.report("Resposta recebida: '#{resposta}'.\n",1)
 		$log.report("Resposta inválida.\n",1)
 	end
-	return okArray	
+	return okArray
 end
 
+# envia para os servidores uma requisição de ABORT
 def sendAbort(okArray)
 	okArray.each do |i|
 		$log.report("Enviando ABORT para #{$hostnames[i]}:#{$portas[i]}...\n",1)
@@ -64,12 +89,15 @@ def sendAbort(okArray)
 		$log.report("ABORT enviado para #{$hostnames[i]}:#{$portas[i]}....\n",1)
 	end	
 end
-# enviando commit para um servidor para alterar o dado
+
+# enviando commit para alterar o dado do servidor 
 def sendCommit(i)
 	$log.report("enviando um COMMIT para o #{$socket[i]}\n",1)
 	$socket[i].send("COMMIT",0)	
 end
 
+# altera nos servidores a chave que criptografa
+# com a cifra de Vigenere um arquivo
 def setKey(numServers)
 	okArray=[]
 	
@@ -109,6 +137,7 @@ def setKey(numServers)
 	closeSocket	
 end
 
+# faz requisição da chave que criptografa o arquivo, e a mostra na tela.
 def getKey(numServers)
 	okArray=[]
 
@@ -150,17 +179,17 @@ def getKey(numServers)
 		end
 	end
 	
-	closeSocket
-	
+	closeSocket	
 end
 
+# faz requisição do arquivo criptografado, e o mostra na tela.
 def getFile(numServers)
 	okArray=[]
 
 	openSocket(numServers)
 	numServers.times do |i| # envia GETFILE
 		$log.report("\n",0)
-			$log.report("Enviando requisição para #{$hostnames[i]}:#{$portas[i]}...\n",1)
+		$log.report("Enviando requisição para #{$hostnames[i]}:#{$portas[i]}...\n",1)
 		$socket[i].send("GETFILE",0)
 		$log.report("Requisição GETFILE enviada. Aguardando resposta...\n",1)
 		resposta = $socket[i].recv(100)
@@ -168,6 +197,8 @@ def getFile(numServers)
 	end
 
 	$log.report("\n",0)
+	puts okArray
+	puts numServers
 	if okArray.size<numServers
 		sendAbort(okArray)
 	else
@@ -199,19 +230,20 @@ def getFile(numServers)
 end
 
 # FIM METODOS
+
 $log = Log.new("cliente.log")
 $log.report("Cliente \n",1)
 opcao = 0
+
 getServidores(numServers)
 system "clear"
-while opcao!=4
+while opcao!=4 # se for igual a opção 4 fecha o programa
 	printServersConect(numServers)
-
 	$log.printMenu
-
 	opcao = gets.chomp.to_i
 	$log.report("opcao digitada #{opcao}",0)
 	system("clear")
+
 	case opcao
 		when 1 # SETKEY
 			setKey(numServers)
@@ -226,6 +258,7 @@ while opcao!=4
 
 	$log.report("\n",1)
 end
+
 $log.report("Saindo do Cliente.\n",0)
 $log.close
 

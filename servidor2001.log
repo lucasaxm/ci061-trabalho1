@@ -1,0 +1,130 @@
+ -----------------------------------------------------------------------
+| Prof. Elias P. Duarte Jr.  -  Disciplina Redes 2                      |
+| Trabalho que implementa a Consistência de Dados com 2PC Simplificado  |
+ -----------------------------------------------------------------------
+Servidor: 2001
+
+Thread 69986313092160: Conexão estabelecida com o @cliente 1
+Thread 69986313092160: Aguardando requisicao...
+Thread 69986313092160: Requisição recebida: 'GETKEY'.
+Thread 69986313092160: Enviando OK para @cliente 1...
+Thread 69986313092160: OK enviado para @cliente 1.
+Thread 69986313092160: Aguardando nova requisição do @cliente 1...
+Thread 69986313092160: Requisição recebida: ''.
+
+Thread 69986313091180: Conexão estabelecida com o @cliente 2
+Thread 69986313091180: Aguardando requisicao...
+Thread 69986313091180: Requisição recebida: 'GETKEY'.
+Thread 69986313091180: Enviando OK para @cliente 2...
+Thread 69986313091180: OK enviado para @cliente 2.
+Thread 69986313091180: Aguardando nova requisição do @cliente 2...
+Thread 69986313091180: Requisição recebida: ''.
+
+Thread 69986313090200: Conexão estabelecida com o @cliente 3
+Thread 69986313090200: Aguardando requisicao...
+Thread 69986313090200: Requisição recebida: 'GETFILE'.
+Thread 69986313090200: Enviando OK para @cliente 3...
+Thread 69986313090200: OK enviado para @cliente 3.
+Thread 69986313090200: Aguardando nova requisição do @cliente 3...
+
+Thread 69986313089300: Conexão estabelecida com o @cliente 4
+Thread 69986313089300: Aguardando requisicao...
+Thread 69986313089300: Requisição recebida: 'GETFILE'.
+Thread 69986313089300: Enviando OK para @cliente 4...
+Thread 69986313089300: OK enviado para @cliente 4.
+Thread 69986313089300: Aguardando nova requisição do @cliente 4...
+
+Thread 69986313088400: Conexão estabelecida com o @cliente 5
+Thread 69986313088400: Aguardando requisicao...
+Thread 69986313088400: Requisição recebida: 'GETFILE'.
+Thread 69986313088400: Enviando OK para @cliente 5...
+Thread 69986313088400: OK enviado para @cliente 5.
+Thread 69986313088400: Aguardando nova requisição do @cliente 5...
+
+Thread 69986313087420: Conexão estabelecida com o @cliente 6
+Thread 69986313087420: Aguardando requisicao...
+Thread 69986313087420: Requisição recebida: ''.
+Thread 69986313087420: Resposta inválida.
+Thread 69986313087420: (Respostas esperadas: SETKEY, GETKEY, GETFILE.)
+Thread 69986313087420: Fechando Conexão com o @cliente 6.
+
+Thread 69986313086740: Conexão estabelecida com o @cliente 7
+Thread 69986313086740: Aguardando requisicao...
+Thread 69986313086740: Requisição recebida: 'GETFILE'.
+Thread 69986313086740: Enviando OK para @cliente 7...
+Thread 69986313086740: OK enviado para @cliente 7.
+Thread 69986313086740: Aguardando nova requisição do @cliente 7...
+
+Thread 69986313085860: Conexão estabelecida com o @cliente 8
+Thread 69986313085860: Aguardando requisicao...
+Thread 69986313085860: Requisição recebida: 'GETFILE'.
+Thread 69986313085860: Enviando OK para @cliente 8...
+Thread 69986313085860: OK enviado para @cliente 8.
+Thread 69986313085860: Aguardando nova requisição do @cliente 8...
+
+Thread 69986313084980: Conexão estabelecida com o @cliente 9
+Thread 69986313084980: Aguardando requisicao...
+Thread 69986313084980: Requisição recebida: 'GETFILE'.
+Thread 69986313084980: Enviando OK para @cliente 9...
+Thread 69986313084980: OK enviado para @cliente 9.
+Thread 69986313084980: Aguardando nova requisição do @cliente 9...
+
+Thread 69986313042960: Conexão estabelecida com o @cliente 10
+Thread 69986313042960: Aguardando requisicao...
+Thread 69986313042960: Requisição recebida: 'GETFILE'.
+Thread 69986313042960: Enviando OK para @cliente 10...
+Thread 69986313042960: OK enviado para @cliente 10.
+Thread 69986313042960: Aguardando nova requisição do @cliente 10...
+
+Thread 69986313042040: Conexão estabelecida com o @cliente 11
+Thread 69986313042040: Aguardando requisicao...
+Thread 69986313042040: Requisição recebida: ''.
+Thread 69986313042040: Resposta inválida.
+Thread 69986313042040: (Respostas esperadas: SETKEY, GETKEY, GETFILE.)
+Thread 69986313042040: Fechando Conexão com o @cliente 11.
+
+Thread 69986313041300: Conexão estabelecida com o @cliente 12
+Thread 69986313041300: Aguardando requisicao...
+Thread 69986313041300: Requisição recebida: 'GETFILE'.
+Thread 69986313041300: Enviando OK para @cliente 12...
+Thread 69986313041300: OK enviado para @cliente 12.
+Thread 69986313041300: Aguardando nova requisição do @cliente 12...
+Thread 69986313041300: Requisição recebida: 'COMMIT'.
+Thread 69986313041300: Arquivo de 17 bytes aberto para leitura.
+Thread 69986313041300: Arquivo enviado para o @cliente 12 com sucesso!
+Thread 69986313041300: Fechando Conexão com o @cliente 12.
+
+Thread 69986313040120: Conexão estabelecida com o @cliente 13
+Thread 69986313040120: Aguardando requisicao...
+Thread 69986313040120: Requisição recebida: 'GETKEY'.
+Thread 69986313040120: Enviando OK para @cliente 13...
+Thread 69986313040120: OK enviado para @cliente 13.
+Thread 69986313040120: Aguardando nova requisição do @cliente 13...
+Thread 69986313040120: Requisição recebida: 'COMMIT'.
+Thread 69986313040120: Palavra-chave 'taz' enviada para o @cliente 13 com sucesso!
+Thread 69986313040120: Fechando Conexão com o @cliente 13.
+
+Thread 69986313039140: Conexão estabelecida com o @cliente 14
+Thread 69986313039140: Aguardando requisicao...
+Thread 69986313039140: Requisição recebida: 'SETKEY'.
+Thread 69986313039140: Enviando OK para @cliente 14...
+Thread 69986313039140: OK enviado para @cliente 14.
+Thread 69986313039140: Aguardando nova requisição do @cliente 14...
+Thread 69986313039140: Requisição recebida: 'COMMIT'.
+Thread 69986313039140: Criptografando arquivo...
+Arquivo cifrado com a antiga palavra chave taz:
+
+
+Descifrado com a chave taz: 
+Arquivo descifrado:
+
+
+Novo arquivo cifrado com a chave Toph:
+
+
+Thread 69986313039140: Chave alterada de 'taz' para 'Toph'.
+Thread 69986313039140: Fechando Conexão com o @cliente 14.
+Salvando palavra chave Toph no arquivo keyword.txt
+
+Saindo do Servidor.
+Bye bye!

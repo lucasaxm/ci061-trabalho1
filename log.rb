@@ -1,6 +1,22 @@
 # encoding: utf-8
-class Log
 
+#---------------------------------------------------------------#
+# 						log.rb
+#    Classe em ruby que gera um arquivo com o log de um programa
+#    Objetivo: Aulixiar a compreensão da executação do protocolo
+# 			   2PC.    
+#    Autores: Evelim Carla Ribeiro
+# 	 		  Lucas Affonso Xavier de Morais
+#    Disciplina: Redes de computadores II
+#    Bacharelado Ciência da Computação
+#    Departamento de Informática
+#    Universidade Federal do Paraná
+#    Ano: 2015
+#--------------------------------------------------------------#  
+
+class Log
+	# inicializa a o log abrindo o arquivo e imprimindo um cabeçalho
+	# no arquivo
 	def initialize(filename)
 		@file = File.open(filename, "w+")
 		self.report(" -----------------------------------------------------------------------\n",0)
@@ -9,6 +25,7 @@ class Log
 		self.report(" -----------------------------------------------------------------------\n",0)
 	end
 
+	# imprime o menu do cliente do protocolo 2PC
 	def printMenu
 		self.report("
 		Escolha uma opção
@@ -19,33 +36,16 @@ class Log
 		? ", 1)		
 	end
 
-	def report(msg, stdout) # editando aqui
-		# puts "msg=#{msg}"
-		# puts "stdout=#{stdout}"
-		# puts stdout==1
+	# imprime uma msg no arquivo
+	def report(msg, stdout) 
 		@file.print msg
 		if (stdout==1)
 			# puts "entrei"
 			print msg
 		end
-		# case val
-		# 	when 0
-		# 		$file.puts msg
-		# 		puts msg
-		# 	when 1
-		# 		$file.puts msg
-		# 	when 2
-		# 		puts msg
-		# 	when 3
-		# 		$file.print msg
-		# 		print msg
-		# 	when 4
-		# 		print msg
-		# 	else			
-		# 		puts "Erro no logger"		
-		# end
 	end
 
+	# fecha o arquivo de log
 	def close
 		@file.close
 	end
