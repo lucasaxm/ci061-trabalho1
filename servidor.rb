@@ -25,18 +25,15 @@ require 'thread'
 require "vigenere" # vigenere.rb
 require "log"
 
-include VigenereCipher
-
-
 # Constantes
-FILE_PATH = "teste"
 TAM_MAX_MSG = 100
-
 
 # Variáveis Globais
 $port = ARGV[0]
 $log = Log.new("servidor#{$port}.log")
 $mutex = Mutex.new
+$keywordPath = "keyword#{$port}"
+$filePath = "crypt#{$port}"
 $keyword = ""
 
 
@@ -108,20 +105,20 @@ class ConnectionHandler
                 oldKey = $keyword
                 $keyword = @client.recv(TAM_MAX_MSG)
                 $log.report("#{@threadId}: Criptografando arquivo...\n",1)
-                File.open(FILE_PATH, "r+") do |f|
-                    $log.report("Arquivo cifrado com a antiga palavra chave #{oldKey}:\n",0)
+                File.open($filePath, "r+") do |f|
+                    $log.report("Arquivo cifrado com a antiga palavra chave '#{oldKey}':\n",0)
                     $log.report("#{f.read}\n",0)
                     f.rewind
                     $log.report("\n",1)
-                    $log.report("Descifrado com a chave #{oldKey}: \n",0)
-                    textoClaro = VigenereCipher.decrypt(f.read, oldKey)
+                    $log.report("Descifrado com a chave '#{oldKey}': \n",0)
+                    textoClaro = Vigenere.new(oldKey, f.read).decode
                     $log.report("Arquivo descifrado:\n",0)
                     $log.report("#{textoClaro}\n",0)
                     $log.report("\n",0)
                     f.rewind
                     f.truncate(0)
-                    $log.report("Novo arquivo cifrado com a chave #{$keyword}:\n",0)
-                    f.write VigenereCipher.encrypt(textoClaro,$keyword)
+                    $log.report("Novo arquivo cifrado com a chave '#{$keyword}':\n",0)
+                    f.write Vigenere.new($keyword, textoClaro).encode
                     f.rewind
                     $log.report("#{f.read}\n",0)
                     $log.report("\n",1)
@@ -172,7 +169,7 @@ class ConnectionHandler
             requisicao = @client.recv(TAM_MAX_MSG)
             if requisicao == "COMMIT"
                 $log.report("#{@threadId}: Requisição recebida: '#{requisicao}'.\n",1)
-                File.open(FILE_PATH,"r") do |f|
+                File.open($filePath,"r") do |f|
                     $log.report("#{@threadId}: Arquivo de #{f.size} bytes aberto para leitura.\n",1)
                     @client.send(f.size.to_s,0)
                     confirmacao = @client.recv(TAM_MAX_MSG)
@@ -203,9 +200,9 @@ end
 # Salva keyword e o arquivo criptografado no disco.
 def shut_down
 	#salvando chave no arquivo
-	$log.report("Salvando palavra chave #{$keyword} no arquivo keyword.txt\n",1)
-	key = File.new("keyword.txt", "w+")
-	key.puts $keyword
+	$log.report("Salvando palavra chave #{$keyword} no arquivo #{$keywordPath}\n",1)
+	key = File.new($keywordPath, "w+")
+	key.print $keyword
 	key.close
 
 	$log.report("\n",1)
@@ -216,7 +213,7 @@ end
 
 # carrega chave do arquivo
 def processKey
-	key = File.new("keyword.txt", "r+")
+	key = File.new($keywordPath, "r+")
 	$keyword = key.read.chomp
 	key.close
 end
