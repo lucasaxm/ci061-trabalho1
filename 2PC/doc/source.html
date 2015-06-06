@@ -49,953 +49,914 @@
 
       <div class="row-fluid">
         <table class="table table-hover" id="file-nav">
-          <tr href="#server">
-            <td>server.py</td>
-            <td style="width: 172px;"><strong><a href="src/server.py.txt"><i class="icon-file"></i> Download RAW</a></strong></td>
+          <tr href="#servidor">
+            <td>servidor.rb</td>
+            <td style="width: 172px;"><strong><a href="src/servidor.rb.txt"><i class="icon-file"></i> Download RAW</a></strong></td>
           </tr>
-          <tr href="#concurrent_server">
-            <td>concurrent_server.py</td>
-            <td style="width: 172px;"><strong><a href="src/concurrent_server.py.txt"><i class="icon-file"></i> Download RAW</a></strong></td>
+          <tr href="#cliente">
+            <td>cliente.rb</td>
+            <td style="width: 172px;"><strong><a href="src/cliente.rb.txt"><i class="icon-file"></i> Download RAW</a></strong></td>
           </tr>
-          <tr href="#client">
-            <td>client.py</td>
-            <td style="width: 172px;"><strong><a href="src/client.py.txt"><i class="icon-file"></i> Download RAW</a></strong></td>
+          <tr href="#client_handler">
+            <td>client_handler.rb</td>
+            <td style="width: 172px;"><strong><a href="src/client_handler.rb.txt"><i class="icon-file"></i> Download RAW</a></strong></td>
           </tr>
-          <tr href="#rdp">
-            <td>rdp.py</td>
-            <td style="width: 172px;"><strong><a href="src/rdp.py.txt"><i class="icon-file"></i> Download RAW</a></strong></td>
+          <tr href="#log">
+            <td>log.rb</td>
+            <td style="width: 172px;"><strong><a href="src/log.rb.txt"><i class="icon-file"></i> Download RAW</a></strong></td>
           </tr>
-          <tr href="#config">
-            <td>config.py</td>
-            <td style="width: 172px;"><strong><a href="src/config.py.txt"><i class="icon-file"></i> Download RAW</a></strong></td>
+          <tr href="#vigenere">
+            <td>vigenere.rb</td>
+            <td style="width: 172px;"><strong><a href="src/vigenere.rb.txt"><i class="icon-file"></i> Download RAW</a></strong></td>
           </tr>
         </table>
 
         <div class="tab-content">
-          <div class="tab-pane" id="server">
-            <pre class="prettyprint lang-python">#!/usr/bin/env python2
-# -*- coding: utf-8 -*-
-#
-# This file is part of faketcp.
-#
-# faketcp is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# trooper-simulator is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with faketcp. If not, see <http://www.gnu.org/licenses/>.
-
-import argparse
-import rdp
-import logging.config
-import config
-
-logging.config.dictConfig(config.LOGGING)
-
-if __name__=="__main__":
-    # parse command line arguments
-    parser = argparse.ArgumentParser(description='FakeTCP server')
-    parser.add_argument('host', metavar='HOST', type=str, default='', nargs='?', help='bind address')
-    parser.add_argument('port', metavar='PORT', type=int, default=50007, nargs='?', help='bind port')
-    parser.add_argument('--ploss', metavar='PLOSS', type=float, default=0.0, help='probability of datagram loss between 0.0 and 1.0, defaults to 0.0.')
-    parser.add_argument('--pdup', metavar='PDUP', type=float, default=0.0, help='probability of datagram duplication between 0.0 and 1.0, defaults to 0.0.')
-    parser.add_argument('--pdelay', metavar='PDELAY', type=float, default=0.0, help='probability of datagram delayed (and arriving out of order) between 0.0 and 1.0, defaults to 0.0.')
-    args = parser.parse_args()
-
-    # create the RDP socket
-    socket = rdp.Socket(ploss=args.ploss, pdup=args.pdup, pdelay=args.pdelay)
-    socket.bind((args.host, args.port))
-    socket.listen()
-
-    # loop forever waiting incoming connections
-    while True:
-        print 'Listening for new connection on ', args.host, ':', args.port, '...'
-        conn, addr = socket.accept()
-
-        print 'Connection estabilished (', addr, ').'
-
-        # loop forever waiting datagrams
-        while True:
-            try:
-                conn.recv(1024)
-            except rdp.NotConnected:
-                # break when connection closed
-                break
-
-    # close the listening socket
-    socket.close()</pre>
-          </div>
-          <div class="tab-pane" id="concurrent_server">
-            <pre class="prettyprint lang-python">#!/usr/bin/env python2
-# -*- coding: utf-8 -*-
-#
-# This file is part of faketcp.
-#
-# faketcp is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# trooper-simulator is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with faketcp. If not, see <http://www.gnu.org/licenses/>.
-
-import os
-import sys
-import argparse
-import rdp
-import logging.config
-import config
-
-logging.config.dictConfig(config.LOGGING)
-
-if __name__=="__main__":
-    # parse command line arguments
-    parser = argparse.ArgumentParser(description='FakeTCP server')
-    parser.add_argument('host', metavar='HOST', type=str, default='', nargs='?', help='bind address')
-    parser.add_argument('port', metavar='PORT', type=int, default=50007, nargs='?', help='bind port')
-    parser.add_argument('--ploss', metavar='PLOSS', type=float, default=0.0, help='probability of datagram loss between 0.0 and 1.0, defaults to 0.0.')
-    parser.add_argument('--pdup', metavar='PDUP', type=float, default=0.0, help='probability of datagram duplication between 0.0 and 1.0, defaults to 0.0.')
-    parser.add_argument('--pdelay', metavar='PDELAY', type=float, default=0.0, help='probability of datagram delayed (and arriving out of order) between 0.0 and 1.0, defaults to 0.0.')
-    args = parser.parse_args()
-
-    # create the RDP socket
-    socket = rdp.Socket(ploss=args.ploss, pdup=args.pdup, pdelay=args.pdelay)
-    socket.bind((args.host, args.port))
-    socket.listen()
-
-    # loop forever waiting incoming connections
-    while True:
-        print 'Listening for new connection on ', args.host, ':', args.port, '...'
-        conn, addr = socket.accept()
-
-        pid = os.fork()
-
-        if (pid < 0):
-            raise Exception('Failed to fork process.')
-
-        elif (pid == 0):
-            print 'Connection estabilished (', addr, ').'
-
-            # loop forever waiting datagrams
-            while True:
-                try:
-                    conn.recv(1024)
-                except rdp.NotConnected:
-                    # break when connection closed
-                    break
-
-            print 'Connection closed (', addr, ').'
-            sys.exit(0)
-
-    # close the listening socket
-    socket.close()</pre>
-          </div>
-          <div class="tab-pane" id="client">
-            <pre class="prettyprint lang-python">#!/usr/bin/env python2
-# -*- coding: utf-8 -*-
-#
-# This file is part of faketcp.
-#
-# faketcp is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# trooper-simulator is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with faketcp. If not, see <http://www.gnu.org/licenses/>.
-
-import argparse
-import rdp
-import logging.config
-import config
-
-logging.config.dictConfig(config.LOGGING)
-
-if __name__=="__main__":
-    # parse command line arguments
-    parser = argparse.ArgumentParser(description='FakeTCP client')
-    parser.add_argument('host', metavar='HOST', type=str, help='hostname or ip address of the server')
-    parser.add_argument('port', metavar='PORT', type=int, default=50007, nargs='?', help='port of the server')
-    parser.add_argument('--ploss', metavar='PLOSS', type=float, default=0.0, help='probability of datagram loss between 0.0 and 1.0, defaults to 0.0.')
-    parser.add_argument('--pdup', metavar='PDUP', type=float, default=0.0, help='probability of datagram duplication between 0.0 and 1.0, defaults to 0.0.')
-    parser.add_argument('--pdelay', metavar='PDELAY', type=float, default=0.0, help='probability of datagram delayed (and arriving out of order) between 0.0 and 1.0, defaults to 0.0.')
-    parser.add_argument('-n', '--num', metavar='NUM', type=int, default=16, help='number of datagrams to send.')
-    args = parser.parse_args()
-
-    # create the RDP socket
-    socket = rdp.Socket(ploss=args.ploss, pdup=args.pdup, pdelay=args.pdelay)
-
-    # connect to server
-    print 'Connecting to ', (args.host, args.port), '...'
-    socket.connect((args.host, args.port))
-    print 'Connection estabilished.'
-
-    # send 'num' datagrams
-    for i in range(args.num):
-        socket.send('this is the datagram number %d' % i)
-
-    # close connection
-    socket.close()</pre>
-          </div>
-          <div class="tab-pane" id="rdp">
-            <pre class="prettyprint lang-python"># -*- coding: utf-8 -*-
-#
-# This file is part of faketcp.
-#
-# faketcp is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# trooper-simulator is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with faketcp. If not, see <http://www.gnu.org/licenses/>.
-
-import socket
-import struct
-import random
-import threading
-import errno
-import collections
-import logging
-
-# setup logging
-__log__ = logging.getLogger(__name__)
-
-# initialize random number generator
-random.seed()
-
-class State:
-    """ Enumeration of all possible states for a socket. """
-    CLOSED = 0
-    LISTEN = 1
-    SYN_SENT = 2
-    SYN_RECV = 3
-    ESTABLISHED = 4
-
-class Flags:
-    """ Enumeration of flags for the datagrams. """
-    FLAG_ACK = 0x1
-    FLAG_SYN = 0x2
-    FLAG_NACK = 0x4
-    FLAG_DATA = 0x8
-
-class ChecksumError(Exception):
-    """ Raised when the checksum of a datagram does not match. """
-    pass
-
-class NotConnected(Exception):
-    """ Raised when a socket method that needs a connection gets called
-    before the connection is established. """
-    pass
-
-class AlreadyConnected(Exception):
-    """ Raised when a socket method that needs an open socket (not connected)
-    gets called after a connection is established. """
-    pass
-
-class Socket(object):
-    """
-    Reliable Datagram Protocol Socket
-    Usage is like any standard UDP socket.
-    """
-
-    BUFFER_SIZE = 16
-
-    def __init__(self, ploss=0.0, pdup=0.0, pdelay=0.0):
-        self._socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-        self.STATE = State.CLOSED
-
-        self.SND_BUFFER = collections.deque(maxlen=self.BUFFER_SIZE)
-        self.RCV_BUFFER = collections.deque(maxlen=self.BUFFER_SIZE)
-
-        self.SND_NXT = 0
-        self.SND_UNA = 0
-        self.SND_RDY = 0
-        self.SND_WND = 0
-        self.SND_TIMEOUT = 0.4
-        self.SND_TIMER = None
-        self.SND_TIMER_RUNNING = False
-        self.ISS = random.randint(0, 65535) # initial send sequence number
-
-        self.RCV_NXT = 0
-        self.RCV_UNA = 0
-        self.RCV_WND = self.BUFFER_SIZE
-        self.IRS = 0     # initial receive sequence number
-
-        self.ACK_PENDING = False
-        self.ACK_TIMEOUT = 0.02
-        self.ACK_TIMER = None
-        self.ACK_TIMER_RUNNING = False
-
-        self.PLOSS = ploss
-        self.PDUP = pdup
-        self.PDELAY = pdelay
-
-        self.DELAYED_SEND = None
-
-        self.lock = threading.Lock()
-
-        __log__.info(str(self))
-
-    def __str__(self):
-        if self.STATE == 0: state = 'CLOSED'
-        elif self.STATE == 1: state = 'LISTEN'
-        elif self.STATE == 2: state = 'SYN_SENT'
-        elif self.STATE == 3: state = 'SYN_RECV'
-        elif self.STATE == 4: state = 'ESTABLISHED'
-        else: state = 'UNKNOWN'
-
-        return 'SOCKET(STATE=%s, SND_NXT=%d, SND_UNA=%d, SND_RDY=%d,\
- SND_WND=%d, ISS=%d, RCV_NXT=%d, RCV_UNA=%d, RCV_WND=%d, IRS=%d)' % \
-            (state, self.SND_NXT, self.SND_UNA, self.SND_RDY, self.SND_WND,
-             self.ISS, self.RCV_NXT, self.RCV_UNA, self.RCV_WND, self.IRS)
-
-    def bind(self, address):
-        """ Bind the socket to an specific address. """
-
-        if self.STATE == State.ESTABLISHED:
-            raise AlreadyConnected('Cannot bind an already connected socket.')
-
-        self._socket.bind(address)
-
-    def connect(self, address):
-        """ Establish a connection to a remote address. """
-
-        if self.STATE == State.ESTABLISHED:
-            raise AlreadyConnected(
-                'Connection already established, cannot connect again.')
-
-        # Assemble a SYN datagram and send to the remote host
-        syn = ReliableDatagram()
-        syn.FLAGS = Flags.FLAG_SYN
-        syn.WIN = self.RCV_WND
-        syn.SEQ = self.ISS
-        __log__.info('SEND: ' + str(syn))
-        self._socket.sendto(syn.to_data(), address)
-
-        # increase send pointers
-        self.SND_RDY += 1
-        self.SND_NXT += 1
-
-        # set socket state to SYN_SENT
-        self.STATE = State.SYN_SENT
-
-        # wait for the SYN ACK datagram
-        while True:
-            data, addr = self._recvfrom_wrapper(4096)
-            datagram = ReliableDatagram.from_data(data)
-            __log__.info('RECV: ' + str(datagram))
-
-            if ((datagram.FLAGS & Flags.FLAG_ACK) != 0) and \
-                    ((datagram.FLAGS & Flags.FLAG_SYN) != 0):
-                break
-            else:
-                __log__.warning('Unknown datagram during handshake.')
-
-        # Set RESPONSE ADDRESS as the socket remote address. This is done so
-        # the remote host can respond with another socket (bound to another
-        # port number)
-        self.REMOTE_ADDR = addr
-
-        # synchronize initial receive sequence and window
-        self.IRS = datagram.SEQ
-        self.SND_WND = datagram.WIN
-
-        # update UNA pointer (because the datagram is an ACK)
-        self.SND_UNA = datagram.ACK - self.ISS
-
-        # increase receive pointers
-        self.RCV_NXT += 1
-        self.RCV_UNA += 1
-
-        # assemble and send an ACK datagram
-        ack = ReliableDatagram()
-        ack.FLAGS = Flags.FLAG_ACK
-        ack.WIN = self.RCV_WND
-        ack.SEQ = self.ISS + self.SND_NXT
-        ack.ACK = self.IRS + self.RCV_UNA
-        __log__.info('SEND: ' + str(ack))
-        self._socket.sendto(ack.to_data(), self.REMOTE_ADDR)
-
-        # set the socket state as ESTABLISHED
-        self.STATE = State.ESTABLISHED
-
-    def listen(self):
-        """ Put the socket in LISTEN state. """
-
-        if self.STATE == State.ESTABLISHED:
-            raise AlreadyConnected(
-              'Connection already established, cannot listen.')
-
-        # just set the socket state as listening, nothing else is needed here
-        self.STATE = State.LISTEN
-
-    def accept(self):
-        """ Block until an connection is established and return a new socket
-        relative to that connection. """
-
-        if self.STATE == State.ESTABLISHED:
-            raise AlreadyConnected(
-              'Connection already established, cannot accept new connections.')
-
-        # loop until receive a SYN
-        while True:
-            data, addr = self._recvfrom_wrapper(1024)
-            datagram = ReliableDatagram.from_data(data)
-            __log__.info('RECV: ' + str(datagram))
-
-            if (datagram.FLAGS & Flags.FLAG_SYN) != 0:
-                break
-            else:
-                __log__.warning('Unknown datagram during handshake.')
-
-        # create a new socket to handle the connection
-        conn = Socket()
-
-        # bind to a random port
-        conn.bind(('', 0))
-        conn.REMOTE_ADDR = addr
-
-        # synchronize initial receive sequence and window
-        conn.IRS = datagram.SEQ
-        conn.SND_WND = datagram.WIN
-
-        # update receive pointers
-        conn.RCV_NXT += 1
-        conn.RCV_UNA += 1
-
-        # send SYN ACK datagram
-        syn_ack = ReliableDatagram()
-        syn_ack.FLAGS = Flags.FLAG_SYN | Flags.FLAG_ACK
-        syn_ack.WIN = conn.RCV_WND
-        syn_ack.SEQ = conn.ISS
-        syn_ack.ACK = conn.IRS + conn.RCV_UNA
-        __log__.info('SEND: ' + str(syn_ack))
-        conn._socket.sendto(syn_ack.to_data(), conn.REMOTE_ADDR)
-
-        # update send pointers
-        conn.SND_RDY += 1
-        conn.SND_NXT += 1
-
-        # set the connection state as SYN_RECV
-        conn.STATE = State.SYN_RECV
-
-        # wait for an ACK
-        while True:
-            data, addr = conn._recvfrom_wrapper(1024)
-            datagram = ReliableDatagram.from_data(data)
-            __log__.info('RECV: ' + str(datagram))
-
-            if (datagram.FLAGS & Flags.FLAG_ACK) != 0:
-                break
-            else:
-                __log__.warning('Unknown datagram during handshake.')
-
-        # synchronize window
-        conn.SND_WND = datagram.WIN
-
-        # update UNA pointer (because the datagram is an ACK)
-        conn.SND_UNA = datagram.ACK - conn.ISS
-
-        # set the socket state as ESTABLISHED
-        conn.STATE = State.ESTABLISHED
-
-        # return the new socket
-        return (conn, conn.REMOTE_ADDR)
-
-
-    def send(self, data, **kwargs):
-        """ Send a datagram containing 'data'. """
-
-        if self.STATE != State.ESTABLISHED:
-            raise NotConnected('Socket not connected.')
-
-        # assemble the datagram
-        datagram = ReliableDatagram()
-        datagram.PAYLOAD = data
-        datagram.FLAGS = Flags.FLAG_ACK | Flags.FLAG_DATA
-
-        self.lock.acquire()
-
-        # block until there is space on window
-        while len(self.SND_BUFFER) >= self.BUFFER_SIZE:
-            self.lock.release()
-            self.sync()
-            self.lock.acquire()
-
-        # set the sequence number
-        datagram.SEQ = self.ISS + self.SND_RDY
-
-        # insert into buffer and move 'RDY' pointer
-        self.SND_BUFFER.append(datagram)
-        self.SND_RDY += 1
-
-        self.lock.release()
-
-        self.sync()
-
-    def recv(self, bufsiz, **kwargs):
-        """ Receive a datagram with maximum 'bufsiz' bytes. """
-
-        if self.STATE != State.ESTABLISHED:
-            raise NotConnected('Socket not connected.')
-
-        self.lock.acquire()
-
-        # block until a datagram arrives
-        while self.RCV_NXT == self.RCV_UNA:
-            self.lock.release()
-            self.sync(blocking=True)
-            self.lock.acquire()
-
-        # remove the datagram from receive buffer
-        datagram = self.RCV_BUFFER.popleft()
-
-        # update receive pointers
-        self.RCV_WND += 1
-        self.RCV_UNA += 1
-
-        self.lock.release()
-
-        # return the datagram payload
-        return datagram.PAYLOAD
-
-    def sync(self, blocking=False):
-        """
-        Synchronize SND_BUFFER and RCV_BUFFER.
-
-        This method tries to receive a datagram (blocking until arrival if
-        'blocking' is True) and put into RCV_BUFFER. Then, if there is datagrams
-        in SND_BUFFER, it sends one of them.
-
-        Consecutive calls to this method result in a complete flush of
-        SND_BUFFER and will acquire all possible datagrams (at the current
-        moment) into RCV_BUFFER.
-        """
-
-        if self.STATE != State.ESTABLISHED:
-            raise NotConnected('Socket not connected.')
-
-        # set internal UDP socket as blocking or not (depending on parameter)
-        self._socket.setblocking(blocking)
-
-        avail = True
-        try:
-            # acquire an UDP datagram (if possible)
-            data, addr = self._recvfrom_wrapper(4096)
-        except socket.error as (code, msg):
-            # if error code is EAGAIN, there is no datagram in UDP buffer
-            if code == errno.EAGAIN:
-                avail = False
-            else:
-                raise
-
-        # reset blocking
-        self._socket.setblocking(True)
-
-        self.lock.acquire()
-
-        # if a datagram was in fact acquired
-        if avail:
-            datagram = ReliableDatagram.from_data(data)
-
-            # FIN
-            if datagram.SEQ == -1:
-                __log__.info('RECV: ' + str(datagram))
-
-                # send FIN ACK
-                datagram = ReliableDatagram()
-                datagram.SEQ = -1
-                datagram.FLAGS = Flags.FLAG_ACK
-                self._socket.sendto(datagram.to_data(), self.REMOTE_ADDR)
-
-                # close the connection
-                self.lock.release()
-                self.close(False)
-                self.lock.acquire()
-
-            else:
-                # if datagram contains data
-                if (datagram.FLAGS & Flags.FLAG_DATA) != 0:
-                    if (datagram.SEQ - self.IRS) < self.RCV_NXT:
-                        __log__.info('RECV (DUPLICATED): ' + str(datagram))
-
-                    elif (datagram.SEQ - self.IRS) > self.RCV_NXT:
-                        __log__.info('RECV (OUT OF ORDER): ' + str(datagram))
-
-                        # send NACK when ACK_TIMEOUT
-                        self.send_nack()
-
-                    else:
-                        __log__.info('RECV: ' + str(datagram))
-                        # push into RCV_BUFFER
-                        self.RCV_BUFFER.append(datagram)
-                        self.RCV_WND -= 1
-                        self.SND_WND = datagram.WIN
-                        self.RCV_NXT += 1
-                        self.ACK_PENDING = True
-
-                        # start ACK_TIMER because whe have ACKs to send
-                        if not self.ACK_TIMER_RUNNING:
-                            self.ACK_TIMER = threading.Timer(self.ACK_TIMEOUT, self.ack_timeout)
-                            self.ACK_TIMER.start()
-                            self.ACK_TIMER_RUNNING = True
-
-                # if datagram has no data, just log it
-                else:
-                    __log__.info('RECV: ' + str(datagram))
-
-                # process ACK
-                if (datagram.FLAGS & Flags.FLAG_ACK) != 0:
-                    # remove acknowloged datagrams from SND_BUFFER
-                    num_datagrams_acked = datagram.ACK - self.ISS - self.SND_UNA
-                    for i in range(num_datagrams_acked):
-                        self.SND_BUFFER.popleft()
-
-                    # update UNA pointer and window size
-                    self.SND_UNA = datagram.ACK - self.ISS
-                    self.SND_WND = datagram.WIN
-
-                    # reset retransmission timer
-                    if self.SND_TIMER_RUNNING:
-                        self.SND_TIMER.cancel()
-                        self.SND_TIMER = threading.Timer(self.SND_TIMEOUT, self.send_timeout)
-                        self.SND_TIMER.start()
-
-                if (datagram.FLAGS & Flags.FLAG_NACK) != 0:
-                    # NOTE: when a NACK is received, the ACK information is
-                    #       still valid and should be treated here.
-
-                    # remove acknowloged datagrams from SND_BUFFER
-                    num_datagrams_acked = datagram.ACK - self.ISS - self.SND_UNA
-                    for i in range(num_datagrams_acked):
-                        self.SND_BUFFER.popleft()
-
-                    # update UNA pointer and window size
-                    self.SND_UNA = datagram.ACK - self.ISS
-                    self.SND_WND = datagram.WIN
-
-                    # reset retransmission timer
-                    if self.SND_TIMER_RUNNING:
-                        self.SND_TIMER.cancel()
-                        self.SND_TIMER = threading.Timer(self.SND_TIMEOUT, self.send_timeout)
-                        self.SND_TIMER.start()
-
-                    if self.SND_NXT > self.SND_UNA:
-                        __log__.info('RETRANSMISSION STARTED (triggered by NACK)')
-                        self.SND_NXT = self.SND_UNA
-
-
-        # if there is datagrams ready in SND_BUFFER and space in send window
-        if (self.SND_RDY > self.SND_NXT) and (self.SND_WND > 0):
-            # get the datagram from buffer
-            send_datagram = self.SND_BUFFER[self.SND_NXT-self.SND_UNA]
-
-            # set datagram ACK and WIN for synchronization
-            send_datagram.ACK = self.IRS + self.RCV_UNA
-            send_datagram.WIN = self.RCV_WND
-
-            something_actually_sent = False
-
-            if self.DELAYED_SEND is None and random.uniform(0,1) < self.PDELAY:
-                # set datagram as delayed (will be sent in the next sync call)
-                __log__.info('SEND (DELAYED): ' + str(send_datagram))
-                self.DELAYED_SEND = send_datagram
-
-            elif random.uniform(0,1) < self.PDUP:
-                # send the datagram twice
-                __log__.info('SEND (DUP): ' + str(send_datagram))
-                self._socket.sendto(send_datagram.to_data(), self.REMOTE_ADDR)
-                self._socket.sendto(send_datagram.to_data(), self.REMOTE_ADDR)
-                something_actually_sent = True
-
-            elif random.uniform(0,1) < self.PLOSS:
-                # do not send the datagram
-                __log__.info('SEND (LOST): ' + str(send_datagram))
-
-            else:
-                # just send the datagram normally
-                __log__.info('SEND: ' + str(send_datagram))
-                self._socket.sendto(send_datagram.to_data(), self.REMOTE_ADDR)
-                something_actually_sent = True
-
-            # send delayed datagram if set in the last sync call
-            if something_actually_sent and self.DELAYED_SEND is not None:
-                self._socket.sendto(self.DELAYED_SEND.to_data(),
-                    self.REMOTE_ADDR)
-                self.DELAYED_SEND = None
-
-            # update pointers and window
-            self.SND_NXT += 1
-            self.SND_WND -= 1
-
-            if not self.SND_TIMER_RUNNING:
-                self.SND_TIMER = threading.Timer(self.SND_TIMEOUT, self.send_timeout)
-                self.SND_TIMER.start()
-                self.SND_TIMER_RUNNING = True
-
-            # reset ACK timer (since ACK is piggybacked in every DATA datagram)
-            if self.ACK_TIMER_RUNNING:
-                self.ACK_TIMER.cancel()
-                self.ACK_TIMER = threading.Timer(self.ACK_TIMEOUT, self.ack_timeout)
-                self.ACK_TIMER.start()
-
-        self.lock.release()
-
-    def send_nack(self):
-        """ Send a NACK datagram (no payload). """
-
-        datagram = ReliableDatagram()
-        datagram.SEQ = self.ISS + self.SND_RDY
-        datagram.ACK = self.IRS + self.RCV_UNA
-        datagram.WIN = self.RCV_WND
-        datagram.FLAGS = Flags.FLAG_NACK
-        __log__.info('SEND: ' + str(datagram))
-        self._socket.sendto(datagram.to_data(), self.REMOTE_ADDR)
-
-    def send_ack(self):
-        """ Send an ACK datagram (no payload). """
-
-        datagram = ReliableDatagram()
-        datagram.SEQ = self.ISS + self.SND_NXT
-        datagram.ACK = self.IRS + self.RCV_UNA
-        datagram.WIN = self.RCV_WND
-        datagram.FLAGS = Flags.FLAG_ACK
-        __log__.info('SEND: ' + str(datagram))
-        self._socket.sendto(datagram.to_data(), self.REMOTE_ADDR)
-
-    def send_timeout(self):
-        """ Callback to SND_TIMER timeout. """
-
-        if self.STATE != State.ESTABLISHED:
-            return
-
-        self.lock.acquire()
-
-        # if unacknowledged data exists in SND_BUFFER
-        if self.SND_NXT > self.SND_UNA:
-            self.SND_NXT = self.SND_UNA
-            __log__.info('RETRANSMISSION STARTED (triggered by SND_TIMEOUT)')
-
-        # restart timer
-        self.SND_TIMER.cancel()
-        self.SND_TIMER = threading.Timer(self.SND_TIMEOUT, self.send_timeout)
-        self.SND_TIMER.start()
-
-        self.lock.release()
-
-    def ack_timeout(self):
-        """ Callback to ACK_TIMER timeout. """
-
-        if self.STATE != State.ESTABLISHED:
-            return
-
-        self.lock.acquire()
-
-        # if ACK pending, send it
-        if self.ACK_PENDING:
-            self.send_ack()
-            self.ACK_PENDING = False
-
-        # reset timer
-        self.ACK_TIMER.cancel()
-        self.ACK_TIMER = threading.Timer(self.ACK_TIMEOUT, self.ack_timeout)
-        self.ACK_TIMER.start()
-
-        self.lock.release()
-
-    def _recvfrom_wrapper(self, bufsiz):
-        """ Wrapper for UDP socket recvfrom method that threats the EINTR
-        exception. This way we can use timers and alarms without breaking the
-        socket. """
-
-        while True:
-            try:
-                return self._socket.recvfrom(bufsiz)
-            except socket.error as (code, msg):
-                if code != errno.EINTR:
-                    raise
-
-    def close(self, send_fin=True):
-        """ Close an established connection. """
-
-        self.lock.acquire()
-
-        if self.STATE == State.ESTABLISHED:
-            if send_fin:
-                # wait 'til buffers flushes
-                while (len(self.SND_BUFFER) > 0) or (len(self.RCV_BUFFER) > 0):
-                    self.lock.release()
-                    self.sync()
-                    self.lock.acquire()
-
-                # stop timers
-                if self.SND_TIMER_RUNNING:
-                    self.SND_TIMER_RUNNING = False
-                    self.SND_TIMER.cancel()
-                if self.ACK_TIMER_RUNNING:
-                    self.ACK_TIMER_RUNNING = False
-                    self.ACK_TIMER.cancel()
-
-                # send pending ack
-                if self.ACK_PENDING:
-                    self.send_ack()
-                    self.ACK_PENDING = False
-
-                # send FIN
-                datagram = ReliableDatagram()
-                datagram.SEQ = -1
-                __log__.info('SEND: ' + str(datagram))
-                self._socket.sendto(datagram.to_data(), self.REMOTE_ADDR)
-
-                # wait for an FIN ACK
-                while True:
-                    data, addr = self._recvfrom_wrapper(1024)
-                    datagram = ReliableDatagram.from_data(data)
-
-                    if (datagram.SEQ) == -1:
-                        __log__.info('RECV: ' + str(datagram))
-                        break
-
-            # stop timers (if not stopped already)
-            if self.SND_TIMER_RUNNING:
-                self.SND_TIMER_RUNNING = False
-                self.SND_TIMER.cancel()
-            if self.ACK_TIMER_RUNNING:
-                self.ACK_TIMER_RUNNING = False
-                self.ACK_TIMER.cancel()
-
-        # close the socket
-        self.STATE = State.CLOSED
-        self._socket.close()
-
-        self.lock.release()
-
-class ReliableDatagram(object):
-    """ Representation of a RDP datagram. """
-
-    def __init__(self):
-        self.SEQ = 0
-        self.ACK = 0
-        self.WIN = 0
-        self.FLAGS = 0x0000
-        self.CHECKSUM = 0
-        self.PAYLOAD = ''
-
-    def __str__(self):
-        def flags():
-            flags = []
-            if (self.FLAGS & Flags.FLAG_ACK) != 0:  flags.append('ACK')
-            if (self.FLAGS & Flags.FLAG_SYN) != 0:  flags.append('SYN')
-            if (self.FLAGS & Flags.FLAG_NACK) != 0: flags.append('NACK')
-            if (self.FLAGS & Flags.FLAG_DATA) != 0: flags.append('DATA')
-            if self.SEQ == -1:  flags.append('FIN')
-            return '|'.join(flags)
-
-        return "(FLAGS=%s  SEQ=%d  ACK=%d  WIN=%d  PAYLOAD='%s')" % \
-            (flags(), self.SEQ, self.ACK, self.WIN, self.PAYLOAD)
-
-    @staticmethod
-    def from_data(data):
-        """ Transforms raw data into a ReliableDatagram. """
-
-        dgram = ReliableDatagram()
-
-        dgram.SEQ, dgram.ACK, dgram.WIN, dgram.FLAGS, \
-                dgram.CHECKSUM = struct.unpack('!iiiHH', data[0:16])
-        dgram.PAYLOAD = data[16:]
-
-        if dgram.calculate_checksum(data[0:16]) != 0:
-            raise ChecksumError('dgram header: 0x' + data[0:16].encode('hex'))
-
-        return dgram
-
-    def to_data(self):
-        """ Transforms a ReliableDatagram in raw data. """
-
-        header = struct.pack('!iiiH', self.SEQ, self.ACK, self.WIN, self.FLAGS)
-        self.CHECKSUM = struct.pack('!H', self.calculate_checksum(header))
-        return header + self.CHECKSUM + self.PAYLOAD
-
-    def calculate_checksum(self, data):
-        """ Calculate the checksum of a string of data. """
-
-        def carry_around_add(a, b):
-            c = a + b
-            return (c & 0xffff) + (c >> 16)
-
-        checksum = 0x0000
-
-        for word in struct.unpack('!' + 'H' * (len(data) / 2), data):
-            checksum = carry_around_add(checksum, word)
-
-        return (checksum ^ 0xffff)</pre>
-          </div>
-          <div class="tab-pane" id="config">
-            <pre class="prettyprint lang-python">import logging
-import time
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': True,
-    'formatters': {
-        'verbose': {
-            'format': '[ %(asctime)s ] [%(levelname)s] %(message)s'
-        },
-        'test': {
-            '()': 'config.MyFormatter',
-            'format': '[ %(asctime)s ] [ %(process)d ] [%(levelname)s] %(message)s'
-        },
-        'simple': {
-            'format': '%(levelname)s %(message)s'
-        },
-    },
-    'handlers': {
-        'null': {
-            'level': 'DEBUG',
-            'class': 'logging.NullHandler',
-        },
-        'console':{
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-            'formatter': 'test'
-        }
-    },
-    'loggers': {
-        'rdp': {
-            'handlers': ['console'],
-            'level': 'INFO'
-        }
-    }
+          <div class="tab-pane" id="servidor">
+            <pre class="prettyprint">
+#!/usr/bin/env ruby1.9.1
+# encoding: utf-8
+
+#-----------------------------------------------------------#
+# 						servidor.rb
+#    Script em ruby que executa o servidor no protocolo 2PC
+#    Objetivo: Fazer a comunicação entre servidor e cliente
+#              e salvar os dados novos que o cliente passa  
+#    		   para esse servidor
+#    
+#    Autores: Evelim Carla Ribeiro
+# 	 		  Lucas Affonso Xavier de Morais
+#    Disciplina: Redes de computadores II
+#    Bacharelado Ciência da Computação
+#    Departamento de Informática
+#    Universidade Federal do Paraná
+#    Ano: 2015
+#-----------------------------------------------------------#  
+
+$LOAD_PATH << '.'
+
+require 'socket'               # Get sockets from stdlib
+require 'thread'
+#require 'awesome_print'
+require "vigenere" # vigenere.rb
+require "log"
+
+# Constantes
+TAM_MAX_MSG = 100
+
+# Variáveis Globais
+$port = ARGV[0]
+$log = Log.new("servidor#{$port}.log")
+$mutex = Mutex.new
+$keywordPath = "keyword#{$port}"
+$filePath = "crypt#{$port}"
+$keyword = ""
+
+
+class ConnectionHandler
+    # estabelece conexão com o cliente
+    def initialize(clientId, client)
+        @clientId, @client = clientId, client
+        @threadId = "Thread #{Thread.current.object_id}"
+        $log.report("\n", 1)
+        $log.report("#{@threadId}: Conexão estabelecida com o @cliente #{@clientId}\n",1)
+    end
+
+    # envia uma mensagem de Nok para o cliente
+    def sendNok
+        $log.report("#{@threadId}: Outro @cliente está sendo atendido no momento. Enviando NOK para @cliente #{@clientId}...\n",0)
+        @client.send("NOK",0)
+        $log.report("#{@threadId}: NOK enviado para @cliente #{@clientId}.\n",1)
+    end
+
+    # envia uma mensagem de Ok para o cliente
+    def sendOk
+        $log.report("#{@threadId}: Enviando OK para @cliente #{@clientId}...\n",0)
+        @client.send("OK",0)
+        $log.report("#{@threadId}: OK enviado para @cliente #{@clientId}.\n",1)    	
+    end
+
+    # mostra mensagem na tela e no log de resposta inválida
+    def invalidRequestCommitOrAbort
+        $log.report("#{@threadId}: Requisição recebida: '#{requisicao}'.\n",1)
+        $log.report("#{@threadId}: Resposta inválida\n",1)
+        $log.report("#{@threadId}: Resposta esperada: COMMIT ou ABORT.\n",1)    	
+    end
+
+    # recebe requisição e chama o metodo que o cliente pediu na requisição
+    def processaRequisicao
+        $log.report("#{@threadId}: Aguardando requisicao...\n",1)
+        requisicao = @client.recv(TAM_MAX_MSG)
+        $log.report("#{@threadId}: Requisição recebida: '#{requisicao}'.\n",1)
+        case requisicao
+        when "SETKEY"
+            setKey()
+        when "GETKEY"
+            getKey()
+        when "GETFILE"
+            getFile()
+        else
+            $log.report("#{@threadId}: Resposta inválida.\n",1)
+            $log.report("#{@threadId}: (Respostas esperadas: SETKEY, GETKEY, GETFILE.)\n",1)
+        end
+    end
+
+    # altera a chave que gera a criptografia de um arquivo, que usa a cifra de vigenere.
+    def setKey
+        if !$mutex.try_lock
+            sendNok
+        else
+            sendOk
+            $log.report("#{@threadId}: Aguardando nova requisição do @cliente #{@clientId}...\n",1)
+            requisicao = @client.recv(TAM_MAX_MSG)
+            if requisicao == "COMMIT"
+                @client.send("ACK",0)
+                $log.report("#{@threadId}: Requisição recebida: '#{requisicao}'.\n",1)
+                oldKey = $keyword
+                $keyword = @client.recv(TAM_MAX_MSG)
+                $log.report("#{@threadId}: Criptografando arquivo...\n",1)
+                File.open($filePath, "r+") do |f|
+                    $log.report("Arquivo cifrado com a antiga palavra chave '#{oldKey}':\n",0)
+                    $log.report("#{f.read}\n",0)
+                    f.rewind
+                    $log.report("\n",1)
+                    $log.report("Descifrado com a chave '#{oldKey}': \n",0)
+                    textoClaro = Vigenere.new(oldKey, f.read).decode
+                    $log.report("Arquivo descifrado:\n",0)
+                    $log.report("#{textoClaro}\n",0)
+                    $log.report("\n",0)
+                    f.rewind
+                    f.truncate(0)
+                    $log.report("Novo arquivo cifrado com a chave '#{$keyword}':\n",0)
+                    f.write Vigenere.new($keyword, textoClaro).encode
+                    f.rewind
+                    $log.report("#{f.read}\n",0)
+                    $log.report("\n",1)
+                    textoClaro = nil
+                end
+                $log.report("#{@threadId}: Chave alterada de '#{oldKey}' para '#{$keyword}'.\n",1)
+                # $log.report("#{@threadId}: sleeping 10sec.\n",1)
+                # sleep 10
+                # $log.report("#{@threadId}: wake!\n",1)
+            elsif requisicao == "ABORT"
+                $log.report("#{@threadId}: Operacao Cancelada\n",1)  
+            else 
+                invalidRequestCommitOrAbort
+            end
+            $mutex.unlock
+        end
+    end
+
+    # envia para o cliente a chave que gera a criptografia do arquivo
+    def getKey
+        if !$mutex.try_lock
+            sendNok
+        else
+            sendOk
+            $log.report("#{@threadId}: Aguardando nova requisição do @cliente #{@clientId}...\n",1)
+            requisicao = @client.recv(TAM_MAX_MSG)
+            $log.report("#{@threadId}: Requisição recebida: '#{requisicao}'.\n",1)
+            if requisicao == "COMMIT"
+                @client.send($keyword,0)
+                $log.report("#{@threadId}: Palavra-chave '#{$keyword}' enviada para o @cliente #{@clientId} com sucesso!\n",1)
+            elsif requisicao == "ABORT"
+                $log.report("#{@threadId}: Operacao Cancelada\n",1)  
+            else
+                invalidRequestCommitOrAbort
+            end
+            $mutex.unlock
+        end
+    end
+
+    # envia o arquivo criptografado para o cliente
+    def getFile
+        if !$mutex.try_lock
+            sendNok
+        else
+            sendOk
+            $log.report("#{@threadId}: Aguardando nova requisição do @cliente #{@clientId}...\n",1)
+            requisicao = @client.recv(TAM_MAX_MSG)
+            if requisicao == "COMMIT"
+                $log.report("#{@threadId}: Requisição recebida: '#{requisicao}'.\n",1)
+                File.open($filePath,"r") do |f|
+                    $log.report("#{@threadId}: Arquivo de #{f.size} bytes aberto para leitura.\n",1)
+                    @client.send(f.size.to_s,0)
+                    confirmacao = @client.recv(TAM_MAX_MSG)
+                    if confirmacao=="ACK"
+                        @client.send(f.read,0)
+                        $log.report("#{@threadId}: Arquivo enviado para o @cliente #{@clientId} com sucesso!\n",1)
+                    else
+                        $log.report("#{@threadId}: Falha ao receber confirmação do @cliente #{@clientId}.\n",1)
+                        $log.report("#{@threadId}: Mensagem do servidor: '#{confirmacao}'.\n",1)
+                    end
+                end
+            elsif requisicao == "ABORT"
+                $log.report("#{@threadId}: Operacao Cancelada\n",1)  
+            else 
+                invalidRequestCommitOrAbort
+            end
+            $mutex.unlock
+        end
+    end
+
+    # fecha a conexão do servidor com o cliente 
+    def close
+        $log.report("#{@threadId}: Fechando Conexão com o @cliente #{@clientId}.\n",1)
+        @client.close
+    end
+end
+
+# Salva keyword e o arquivo criptografado no disco.
+def shut_down
+    #salvando chave no arquivo
+    $log.report("Salvando palavra chave #{$keyword} no arquivo #{$keywordPath}\n",1)
+    key = File.new($keywordPath, "w+")
+    key.print $keyword
+    key.close
+
+    $log.report("\n",1)
+    $log.report("Saindo do Servidor.\n",1)
+    $log.report("Bye bye!",0)
+    $log.close
+end
+
+# carrega chave do arquivo
+def loadKey
+    key = File.new($keywordPath, "r+")
+    $keyword = key.read.chomp
+    key.close
+end
+
+# Encerra o servidor de forma limpa, quando recebe o sinal de termino ctrl+C
+Signal.trap("INT") {
+    shut_down
+    exit
 }
 
-class MyFormatter(logging.Formatter):
-    beginning = time.time()
+# Encerra o servidor de forma limpa, quando recebe o sinal de termino kill
+Signal.trap("TERM") {
+    shut_down
+    exit
+}
 
-    def formatTime(self, record, datefmt=None):
-        return '%.8f' % (record.created - self.beginning)</pre>
+
+loadKey
+# inicia servidor
+server = TCPServer.open($port)
+$log.report("Servidor: #{$port}\n",1)
+contClient = 1 	# id dada para cliente que está sendo atendido
+loop {
+    # abre uma thread para atender cada cliente recebido
+    Thread.start(contClient, server.accept) do |clientId, client|
+        handler = ConnectionHandler.new(clientId, client)
+        handler.processaRequisicao()
+        handler.close()
+    end
+    contClient+=1
+}</pre>
+          </div>
+          <div class="tab-pane" id="cliente">
+            <pre class="prettyprint">
+#!/usr/bin/env ruby1.9.1
+# encoding: utf-8
+
+#-----------------------------------------------------------#
+# 						cliente.rb
+#    Script em ruby que executa o cliente no protocolo 2PC
+#    Objetivo: Fazer a comunicação entre servidor e cliente
+#              e salvar os dados novos que o cliente passa  
+#    		   para esse servidor
+#    
+#    Autores: Evelim Carla Ribeiro
+# 	 		  Lucas Affonso Xavier de Morais
+#    Disciplina: Redes de computadores II
+#    Bacharelado Ciência da Computação
+#    Departamento de Informática
+#    Universidade Federal do Paraná
+#    Ano: 2015
+#-----------------------------------------------------------#  
+
+$LOAD_PATH << '.'
+require 'socket'
+require "awesome_print"
+require "client_handler"
+require "log"
+
+# instancia cliente conectado a 3 servidores
+cliente = ClientHandler.new(3)
+opcao = 0
+system "clear"
+while opcao!=4 # se for igual a opção 4 fecha o programa
+	cliente.printConnectedServers
+	cliente.log.printMenu
+	opcao = gets.chomp.to_i
+	cliente.log.report("opcao digitada #{opcao}",0)
+	system("clear")
+
+	case opcao
+		when 1 # SETKEY
+			cliente.setKey
+		when 2 # GETKEY
+			cliente.getKey		
+		when 3 # GETFILE
+			cliente.getFile
+		when 4			
+		else # EXIT
+			cliente.log.report("Opcao inválida\n",1)
+	end
+
+	cliente.log.report("\n",1)
+end
+
+cliente.log.report("Saindo do Cliente.\n",0)
+cliente.log.close
+            </pre>
+          </div>
+          <div class="tab-pane" id="client_handler">
+            <pre class="prettyprint">
+# encoding: utf-8
+
+#---------------------------------------------------------------#
+# 						client_handler.rb
+#    Class em ruby que gerencia as operações do processo Cliente
+#    neste trabalho.
+#    Objetivo: Melhor legibilidade do código no arquivo
+#    cliente.rb
+#    Autores: Evelim Carla Ribeiro
+# 	 		  Lucas Affonso Xavier de Morais
+#    Disciplina: Redes de computadores II
+#    Bacharelado Ciência da Computação
+#    Departamento de Informática
+#    Universidade Federal do Paraná
+#    Ano: 2015
+#--------------------------------------------------------------#  
+
+class ClientHandler
+    # lê da entrada padrão o nome dos servidores e portas que ira se conectar
+    def initialize(numServers)
+        @log = Log.new("cliente#{Time.now.strftime('%Y%m%d%H%M%S')}.log")
+        @log.report("Cliente \n",1)
+        @numServers=numServers
+        @hostnames = []
+        @portas = []
+        @socket = []
+        @numServers.times do |i|
+            puts "Digite o nome do servidor #{i+1}: "
+            @hostnames[i]=gets.chomp	# array com nome dos servidores
+            puts "Digite a porta do servidor #{i+1}: "
+            @portas[i]=gets.chomp	# array com porta dos servidores
+            @log.report("Inserindo o servidor #{@hostnames[i]} na porta #{@portas[i]} para poder fazer conexão.\n",0)
+        end
+        # hardcoded servers for test
+        # @hostnames[0]="localhost"
+        # @hostnames[1]="localhost"
+        # @hostnames[2]="localhost"
+        # @portas[0]="1234"
+        # @portas[1]="2345"
+        # @portas[2]="3456"
+    end
+    
+    def log
+        @log
+    end
+    
+    # imprime o nome e a porta dos servidores que o cliente está conectado
+    def printConnectedServers
+        @log.report("Este cliente esta connectado aos seguintes servidores: \n",1)
+        @numServers.times do |i|
+            if i<@numServers-1
+                @log.report("#{@hostnames[i]}:#{@portas[i]}, ",1)
+            else
+                @log.report("#{@hostnames[i]}:#{@portas[i]}.\n",1)
+            end
+        end	
+    end
+    
+    # abre a conexão com os servidores
+    def openSocket
+        @numServers.times do |i|	# abre sockets
+            @socket[i] = TCPSocket.open(@hostnames[i], @portas[i].to_i)
+        end
+    end
+    
+    # fecha a conexão com os servidores
+    def closeSocket
+        @socket.each do |s|	# fecha sockets
+            s.close
+        end	
+    end
+    
+    # recebe de cada servidor uma resposta de OK se o não estiver ocupado
+    # caso contrario recebe NOK
+    def requestOkOrNok(resposta, i)
+        if resposta == "OK"
+            @okArray << i
+            @log.report("#{@hostnames[i]}:#{@portas[i]} respondeu OK.\n",1)
+        elsif resposta=="NOK"
+            @log.report("#{@hostnames[i]}:#{@portas[i]} está ocupado.\n",1)
+        else
+            @log.report("Resposta recebida: '#{resposta}'.\n",1)
+            @log.report("Resposta inválida.\n",1)
+        end
+    end
+    
+    # envia para os servidores uma requisição de ABORT
+    def sendAbort
+        @okArray.each do |i|
+            @log.report("Enviando ABORT para #{@hostnames[i]}:#{@portas[i]}...\n",1)
+            @socket[i].send("ABORT",0)
+            @log.report("ABORT enviado para #{@hostnames[i]}:#{@portas[i]}....\n",1)
+        end	
+    end
+    
+    # enviando commit para alterar o dado do servidor 
+    def sendCommit(i)
+        @log.report("enviando um COMMIT para #{@hostnames[i]}:#{@portas[i]}\n",1)
+        @socket[i].send("COMMIT",0)	
+    end
+    
+    # altera nos servidores a chave que criptografa
+    # com a cifra de Vigenere um arquivo
+    def setKey
+        @okArray=[]
+        
+        openSocket
+        @log.report("\n",0)
+            
+        @numServers.times do |i|
+            @log.report("Enviando requisição para #{@hostnames[i]}:#{@portas[i]}...\n",1)
+            @socket[i].send("SETKEY",0)
+            @log.report("Requisição SETKEY enviada. Aguardando resposta...\n",1)
+            resposta = @socket[i].recv(100)
+            requestOkOrNok(resposta, i)				
+        end
+        
+        @log.report("\n",1)	
+        if @okArray.size<@numServers
+            sendAbort
+        else
+            # enviar COMMIT com a alteração pra todo mundo.
+            @log.report("Digite a nova palavra-chave:\n",1)
+            keyword = gets.chomp
+            @log.report("A palavra chave digita é: #{keyword}\n",1)
+            @numServers.times do |i|
+                sendCommit(i)
+                confirmacao = @socket[i].recv(100)
+                @log.report("recebendo a confirmação #{confirmacao} do #{@socket[i]}\n",0)
+                if confirmacao=="ACK"
+                    @socket[i].send(keyword, 0)
+                    @log.report("Palavra-chave '#{keyword}' enviada para o host #{@hostnames[i]}:#{@portas[i].to_i} com sucesso!\n",1)
+                else
+                    @log.report("Falha ao receber confirmação do servidor.\n",1)
+                    @log.report("Mensagem do servidor: '#{confirmacao}'.\n",1)
+                end					
+            end
+        end
+    
+        closeSocket	
+    end
+    
+    # faz requisição da chave que criptografa o arquivo, e a mostra na tela.
+    def getKey
+        @okArray=[]
+    
+        openSocket
+        @log.report("\n",0)
+    
+        @numServers.times do |i| # envia GETFILE
+            @log.report("Enviando requisição para #{@hostnames[i]}:#{@portas[i]}...\n",1)
+            @socket[i].send("GETKEY",0)
+            @log.report("Requisição GETKEY enviada. Aguardando resposta...\n",1)
+            resposta = @socket[i].recv(100)
+            requestOkOrNok(resposta, i)
+        end
+    
+        @log.report("\n",1)
+        if @okArray.size<@numServers
+            sendAbort
+        else
+            # enviar COMMIT com a alteração pra todo mundo.
+            @log.report("\n",0)
+            keyArray = []
+            @numServers.times do |i|
+                sendCommit(i)
+                keyArray[i] = @socket[i].recv(100)
+                @log.report("Palavra-chave recebida do host #{@hostnames[i]}:#{@portas[i].to_i} com sucesso!\n ",1)
+            end
+            if keyArray.uniq.length > 1
+                @log.report("As Palavras-chaves recebidas são diferentes.\n",1)
+                @log.report("\n",1)
+                @numServers.times do |i|
+                    @log.report("Palavra-chave recebida de #{@hostnames[i]}:#{@portas[i].to_i}:\n",1)
+                    @log.report(keyArray[i],0)
+                    @log.report("\n",1)
+                end
+            else
+                @log.report("As Palavras-chaves recebidas são iguais.\n",1)
+                @log.report("\n",1)
+                @log.report("Palavra-chave:\n ",1)
+                @log.report(keyArray.first,1)
+                @log.report("\n",1)
+            end
+        end
+        
+        closeSocket	
+    end
+    
+    # faz requisição do arquivo criptografado, e o mostra na tela.
+    def getFile
+        @okArray=[]
+    
+        openSocket
+        @numServers.times do |i| # envia GETFILE
+            @log.report("\n",0)
+            @log.report("Enviando requisição para #{@hostnames[i]}:#{@portas[i]}...\n",1)
+            @socket[i].send("GETFILE",0)
+            @log.report("Requisição GETFILE enviada. Aguardando resposta...\n",1)
+            resposta = @socket[i].recv(100)
+            requestOkOrNok(resposta, i)
+        end
+    
+        @log.report("\n",1)
+        # puts @okArray
+        # puts @numServers
+        if @okArray.size<@numServers
+            sendAbort
+        else
+            # enviar COMMIT com a alteração pra todo mundo.
+            arqArray = []
+            @numServers.times do |i|
+                sendCommit(i)
+                tamArq = @socket[i].recv(100).to_i
+                @socket[i].send("ACK",0)
+                arqArray[i] = @socket[i].recv(tamArq)
+                @log.report("Arquivo de #{arqArray[i].size} bytes recebido do host #{@hostnames[i]}:#{@portas[i].to_i} com sucesso!\n",1)
+            end
+            if arqArray.uniq.length > 1
+                puts "Arquivos recebidos são diferentes."
+                @log.report("\n",1)
+                @numServers.times do |i|
+                    @log.report("Arquivo recebido de #{@hostnames[i]}:#{@portas[i].to_i}:\n",1)
+                    @log.report("#{arqArray[i]}\n",1)
+                    @log.report("\n",1)
+                end
+            else
+                @log.report("Arquivos recebidos são iguais.\n",1)
+                @log.report("\n",1)
+                @log.report("Arquivo recebido:\n",1)
+                @log.report("#{arqArray.first}\n",1)
+                @log.report("\n",1)
+            end
+        end
+        
+        closeSocket
+    end
+end
+            </pre>
+          </div>
+          <div class="tab-pane" id="log">
+            <pre class="prettyprint"># encoding: utf-8
+
+#---------------------------------------------------------------#
+# 						log.rb
+#    Classe em ruby que gera um arquivo com o log de um programa
+#    Objetivo: Aulixiar a compreensão da executação do protocolo
+# 			   2PC.    
+#    Autores: Evelim Carla Ribeiro
+# 	 		  Lucas Affonso Xavier de Morais
+#    Disciplina: Redes de computadores II
+#    Bacharelado Ciência da Computação
+#    Departamento de Informática
+#    Universidade Federal do Paraná
+#    Ano: 2015
+#--------------------------------------------------------------#  
+
+class Log
+	# inicializa a o log abrindo o arquivo e imprimindo um cabeçalho
+	# no arquivo
+	def initialize(filename)
+		@file = File.open(filename, "w+")
+		self.report(" -----------------------------------------------------------------------\n",0)
+		self.report("| Prof. Elias P. Duarte Jr.  -  Disciplina Redes 2                      |\n",0)
+		self.report("| Trabalho que implementa a Consistência de Dados com 2PC Simplificado  |\n",0)
+		self.report(" -----------------------------------------------------------------------\n",0)
+	end
+
+	# imprime o menu do cliente do protocolo 2PC
+	def printMenu
+		self.report("
+		Escolha uma opção
+		1 - Trocar palavra-chave.
+		2 - Ver palavra-chave.
+		3 - Ver arquivo.
+		4 - Sair.
+		? ", 1)		
+	end
+
+	# imprime uma msg no arquivo
+	def report(msg, stdout) 
+		@file.print msg
+		if (stdout==1)
+			# puts "entrei"
+			print msg
+		end
+	end
+
+	# fecha o arquivo de log
+	def close
+		@file.close
+	end
+end</pre>
+          </div>
+          <div class="tab-pane" id="vigenere">
+            <pre class="prettyprint">
+#!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
+# 
+# Copyright by Scott Severance
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+
+# This is a library to implement the Vigenère Cipher
+# &#60;https://en.wikipedia.org/wiki/Vigen%C3%A8re_cipher&#62;.
+# 
+# Compatibility note:
+# -------------------
+# If you want to use a random key, *and* you don't supply a seed, this library
+# depends on a UNIX-like system (such as Linux). If you don't need that
+# particular feature, you should be able to use any system with a Ruby 1.8 or
+# 1.9 interpreter. This library is untested with Ruby 2.0.
+
+require 'enumerator'
+
+# Exception raised if the key is set before the text.
+class NoTextError < StandardError
+end
+
+# This class handles encoding and decoding text using the
+# Vigenère Cipher.
+class Vigenere
+  
+  # For convenience, you can set the options in the constructor. All
+  # values are optional (though they need to be specified eventually).
+  # 
+  # Arguments:
+  # key:             The cipher key
+  # text:            The text to be encoded or decoded
+  # chars_per_group: If non-nil, output will be grouped into groups of
+  #                    this many characters.
+  # 
+  # When setting the text and the key, this class will automatically
+  # convert its input to uppercase and strip all non-alphabetic
+  # characters.
+  def initialize(key = nil, text = nil, chars_per_group = nil)
+    @letter_set = %w[A B C D E F G H I J K L M N O P Q R S T U V W X Y Z]
+    @table, @letter_indices = make_tabula_recta
+    @chars_per_group = chars_per_group
+    self.text = text unless text.nil?
+    self.key = key unless key.nil?
+    @seeded = nil
+  end
+  
+  # Reader methods for various instance variables.
+  attr_reader :chars_per_group, :cipher_text, :letter_set, :plain_text, :seed, :table
+  
+  # Set the number of characters per output group. It is an error to set
+  # this to 0. Set to nil to disable grouping.
+  def chars_per_group=(n)
+    raise ArgumentError, "Can't have 0 characters per group; set to nil to disable" if n == 0
+    @chars_per_group = n
+  end
+  
+  # Decode the stored text using the stored key. Of course, both must be
+  # set prior to calling this method.
+  def decode
+    transform :decode
+  end
+  
+  # Encode the stored text using the stored key. Of course, both must be
+  # set prior to calling this method.
+  def encode
+    transform :encode   
+  end
+  
+  # Reads the specified file and sets its contents as the text.
+  def file=(filename)
+    File.open(filename) do |f|
+      self.text = f.read
+    end
+    self.text
+  end
+  
+  # Provides sensible output on inspect and when running in irb.
+  def inspect
+    "&#60;Vigenere: @text=%s, @key=%s, @seed=%s&#62;" % [
+      (@text) ? @text.inspect : 'nil',
+      (@key)  ? @key.inspect  : 'nil',
+      (@seed) ? @seed.inspect : 'nil',
+    ]
+  end
+  
+  # Returns the current key.
+  def key
+    add_spaces(@key, chars_per_group)
+  end
+  
+  # Sets the key. Raises NoTextError unless the text is set first.
+  # Automatically converts the key to uppercase and discards
+  # non-alphabetic characters.
+  def key=(key)
+    begin
+      txt_len = @text.split('').length # A bug in Ruby 1.8 sometimes causes
+                                       # String#length to return an incorrect value
+    rescue NoMethodError
+      raise NoTextError, "You must set the text before setting a key."
+    end
+    @original_key = key
+    key = normalize_text(key).split('')
+    until key.length >= txt_len
+      key += key
+    end
+    @key = key[0...txt_len].join('')
+    @key
+  end
+  
+  # Sets the alphabet to use. Takes an array of uppercase (if
+  # applicable) letters. Note: normalize_text can only auto-uppercase
+  # the letters of the English alphabet. That means that if you use a
+  # non-English alphabet, you'll have to manually convert your text and
+  # key to uppercase.
+  def letter_set=(array)
+    @letter_set = array
+    @table, @letter_indices = make_tabula_recta
+  end
+  
+  # Makes the tabula_recta--the cipher table. Returns an array of the
+  # table itself and a hash mapping letters to indices.
+  def make_tabula_recta
+    letters = @letter_set.dup
+    table = []
+    letters.length.times do
+      table.push letters.dup
+      letters.push letters.shift
+    end
+    indices = {}
+    letters = letters.each_with_index { |letter, i| indices[letter] = i }
+    [table, indices]
+  end
+  
+  # Generates a pseudorandom key the same length as the text. Sets and
+  # returns the key.
+  # 
+  # If a seed has been set via the seed= method, then this method
+  # generates a repeatable pseudorandom number based on the seed. If the
+  # seed has not been set, or has been explicitly set to nil, then this
+  # method generates the most random number possible on the system.
+  # 
+  # Compatibility note: In cases where @seed is nil (meaning a seed has not been
+  # set via the seed= method), this implementation depends on the underlying
+  # system having a 'dd' command and a '/dev/random'. This most likely means
+  # that this case will only work on a UNIX-like system. It has only been tested
+  # on Linux.
+  def random_key
+    text_length = @text.split('').length # See explanation in method key=.
+    if @seed
+      key = []
+      text_length.times do
+        key.push(@table[0][rand(@letter_set.length)])
+      end
+    else
+      cmd = "dd if=/dev/random bs=1 count=#{text_length}"
+      key = `#{cmd} 2>/dev/null`.chomp.unpack("C#{text_length}")
+      key.collect! { |i| @table[0][i % @letter_set.length] }
+    end
+    self.key = key.join ''
+  end
+  
+  # To use a seeded random number for a random key (so that the key can
+  # be replayed, call this method with an Integer. To use a more random
+  # key, call it with nil.
+  def seed=(value)
+    srand(value) if value.kind_of? Integer
+    @seed = value
+  end
+  
+  # Returns the current text.
+  def text
+    add_spaces(@text, @chars_per_group)
+  end
+  
+  # Sets the text. Automatically converts text to uppercase and discards
+  # non-alphabetic characters.
+  def text=(text)
+    @text = normalize_text text
+    self.key= @original_key if @original_key
+  end
+  
+  # Handles conversion to a string. Returns the text. Text is in
+  # whichever state it was last converted to.
+  def to_s
+    text
+  end
+  
+  # The following methods are private.
+  private
+  
+  # Adds spaces to str every chars_per_group characters.
+  def add_spaces(str, chars_per_group = nil)
+    return str if chars_per_group.nil?
+    str = str.split ''
+    out = []
+    str.each_slice(chars_per_group) do |group|
+      group.push ' '
+      out.push group.join('')
+    end
+    out.join('').strip
+  end
+  
+  # Converts text to uppercase and discards non-alphabetic characters.
+  def normalize_text(text)
+    letters = text.upcase.split ''
+    letters.delete_if { |x| ! @table[0].include?(x) }
+    letters.join ''
+  end
+  
+  # Performs the actual encoding or decoding. The argument direction is
+  # one of :encode or :decode.
+  def transform(direction)
+    text_letters = @text.split ''
+    key_letters = @key.split ''
+    transformed = []
+    case direction
+      when :encode
+        text_letters.each_with_index do |letter, i|
+          index1 = @letter_indices.fetch(key_letters.fetch(i))
+          index2 = @letter_indices.fetch(letter)
+          transformed.push @table.fetch(index1).fetch(index2)
+        end
+        @plain_text = @text
+        @cipher_text = add_spaces(transformed.join(''), @chars_per_group)
+        @text = normalize_text @cipher_text
+        return @cipher_text
+      when :decode
+        text_letters.each_with_index do |letter, i|
+          index = @letter_indices.fetch(letter) - @letter_indices.fetch(key_letters.fetch(i))
+          transformed.push @table[0].fetch(index)
+        end
+        @plain_text = add_spaces(transformed.join(''), @chars_per_group)
+        @cipher_text = self.text
+        @text = normalize_text @plain_text
+        return @plain_text
+      else
+        raise ArgumentError, "direction must be either :encode or :decode"
+    end
+  end
+end
+
+# Testing code. Only executed if this file is executed directly. If this
+# file is require'd, this code doesn't run.
+# 
+# To run the testing code:
+#     ./vigenere.rb text key [chars-per-group]
+if $0 == __FILE__
+  raise "Must supply at least 2 command line arguments" if ARGV.length < 2
+  a = Vigenere.new
+  a.text = ARGV[0]
+  a.key = ARGV[1]
+  a.chars_per_group = ARGV[2].to_i if ARGV.length >= 3
+  
+  puts "Using supplied key:"
+  puts "      Plain text : #{a}"
+  puts "    Supplied key : #{a.key}"
+  puts "    Encoded text : #{a.encode}"
+  puts "    Decoded text : #{a.decode}"
+  
+  a.seed = 7629384752639857236945827346952837652938752392938742837462598
+  a.random_key
+  
+  puts "\nUsing random (seeded) key:"
+  puts "      Plain text : #{a}"
+  puts "      Random key : #{a.key}"
+  puts "    Encoded text : #{a.encode}"
+  puts "    Decoded text : #{a.decode}"
+end
+</pre>
           </div>
         </div>
       </div>
@@ -1006,7 +967,7 @@ class MyFormatter(logging.Formatter):
 
     <script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
-    <script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js?lang=python&skin=desert"></script>
+    <script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js?skin=desert"></script>
     <script type="text/javascript">
       $(function () {
         $('#file-nav tr').click(function (e) {

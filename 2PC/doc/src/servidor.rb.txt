@@ -123,6 +123,7 @@ class ConnectionHandler
                 # sleep 10
                 # $log.report("#{@threadId}: wake!\n",1)
             elsif requisicao == "ABORT"
+                $log.report("#{@threadId}: Requisição recebida '#{requisicao}'.\n",1)
                 $log.report("#{@threadId}: Operacao Cancelada\n",1)  
             else 
                 invalidRequestCommitOrAbort
@@ -140,10 +141,13 @@ class ConnectionHandler
             $log.report("#{@threadId}: Aguardando nova requisição do @cliente #{@clientId}...\n",1)
             requisicao = @client.recv(TAM_MAX_MSG)
             $log.report("#{@threadId}: Requisição recebida: '#{requisicao}'.\n",1)
+            print "requisicao="
+            p requisicao
             if requisicao == "COMMIT"
                 @client.send($keyword,0)
                 $log.report("#{@threadId}: Palavra-chave '#{$keyword}' enviada para o @cliente #{@clientId} com sucesso!\n",1)
             elsif requisicao == "ABORT"
+                $log.report("#{@threadId}: Requisição recebida '#{requisicao}'.\n",1)
                 $log.report("#{@threadId}: Operacao Cancelada\n",1)  
             else
                 invalidRequestCommitOrAbort
@@ -175,6 +179,7 @@ class ConnectionHandler
                     end
                 end
             elsif requisicao == "ABORT"
+                $log.report("#{@threadId}: Requisição recebida '#{requisicao}'.\n",1)
                 $log.report("#{@threadId}: Operacao Cancelada\n",1)  
             else 
                 invalidRequestCommitOrAbort
@@ -238,4 +243,3 @@ loop {
     end
     contClient+=1
 }
-
